@@ -2,7 +2,6 @@
 #define __MAIN_H__
 
 #include <Arduino.h>
-#include <ArduinoOTA.h>
 #include <WiFiUdp.h>
 
 #include "wifi/wifi.h"

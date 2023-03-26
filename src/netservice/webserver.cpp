@@ -29,3 +29,22 @@ void webServiceBegin()
     server.on("/", handleRoot);
     httpUpdater.setup(&server);
 }
+
+void setUpOverTheAirProgramming() // OAT升级
+{
+
+    // Change OTA port.
+    // Default: 8266
+    // ArduinoOTA.setPort(8266);
+
+    // Change the name of how it is going to
+    // show up in Arduino IDE.
+    // Default: esp8266-[ChipID]
+    ArduinoOTA.setHostname("esp32_mp3");
+
+    // Re-programming passowrd.
+    // No password by default.
+    // ArduinoOTA.setPassword("123");
+
+    ArduinoOTA.begin();
+}
