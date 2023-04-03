@@ -12,4 +12,7 @@
 #define I2S_DIN GPIO_NUM_13
 #define I2S_MCLK GPIO_NUM_14
 
+/*LED*/
+#define IO2_LED GPIO_NUM_2
+
 #endif

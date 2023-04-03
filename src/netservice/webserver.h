@@ -5,9 +5,6 @@
 #include <HTTPUpdateServer.h>
 #include <ArduinoOTA.h>
 
-static WebServer server(80);
-static HTTPUpdateServer httpUpdater;
-
 void webServiceBegin();
 void setUpOverTheAirProgramming(); // OAT升级
 

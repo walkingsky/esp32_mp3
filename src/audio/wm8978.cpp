@@ -1,5 +1,8 @@
 #include "wm8978.h"
 
+Audio audio;
+WM8978 dac;
+
 void wm8978Init()
 {
     /* Setup wm8978 I2C interface */

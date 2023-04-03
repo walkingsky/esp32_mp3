@@ -5,8 +5,5 @@
 #include <Audio.h>  /* https://github.com/schreibfaul1/ESP32-audioI2S */
 #include "gpios.h"
 
-static Audio audio;
-static WM8978 dac;
-
 void wm8978Init();
 #endif

@@ -1,5 +1,8 @@
 #include "webserver.h"
 
+WebServer server;
+HTTPUpdateServer httpUpdater;
+
 /* 404 返回 */
 void handleNotFound()
 {
@@ -32,10 +35,6 @@ void webServiceBegin()
 
 void setUpOverTheAirProgramming() // OAT升级
 {
-
-    // Change OTA port.
-    // Default: 8266
-    // ArduinoOTA.setPort(8266);
 
     // Change the name of how it is going to
     // show up in Arduino IDE.
