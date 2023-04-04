@@ -9,6 +9,6 @@
 #include "netservice/ntp.h"
 #include "netservice/webserver.h"
 #include "audio/wm8978.h"
-#include "led.h"
+#include "gpio_app.h"
 
 #endif

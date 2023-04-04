@@ -15,4 +15,7 @@
 /*LED*/
 #define IO2_LED GPIO_NUM_2
 
+/* DHT11 */
+#define DHTPIN GPIO_NUM_15
+
 #endif

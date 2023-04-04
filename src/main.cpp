@@ -29,6 +29,7 @@ void setup()
 
   webServiceBegin(); // http 服务
   led_init();
+  dht_init();
 }
 
 void loop()
@@ -38,4 +39,5 @@ void loop()
   ArduinoOTA.handle(); // OTA升级
   server.handleClient();
   led_loop();
+  dht_loop();
 }
