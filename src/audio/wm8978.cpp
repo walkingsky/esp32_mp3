@@ -9,15 +9,19 @@ void wm8978Init()
     if (!dac.begin(I2C_SDA, I2C_SCL))
     {
         log_e("Error setting up dac. System halted");
-        while (1)
+        while (0)
             delay(100);
     }
-    dac.setSPKvol(40); /* max 63 */
+    dac.setSPKvol(50); /* max 63 */
     dac.setHPvol(32, 32);
-
     /* set i2s pins */
-    audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT, I2S_DIN);
-
-    log_i("Connected. Starting MP3...");
-    audio.connecttohost("http://m10.music.126.net/20230326120311/973a01bed64e33e402312238b661c44c/ymusic/530e/0f0b/065c/dd42da1d8a8a643a9fe516f9a7e75719.mp3");
+    audio.i2s_mclk_pin_select(I2S_MCLK);
+    // audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT, I2S_DIN);
+    audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
+    log_e("Connected. Starting MP3...");
+    bool host = audio.connecttohost("http://192.168.1.7/2603174988.mp3");
+    // bool host = audio.connecttohost("http://icecast.omroep.nl/3fm-bb-mp3");
+    audio.setVolume(20);
+    int i = audio.getCodec();
+    log_e("host:%s code:%d", host ? "true" : "false", i);
 }

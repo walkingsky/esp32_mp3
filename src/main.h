@@ -10,5 +10,8 @@
 #include "netservice/webserver.h"
 #include "audio/wm8978.h"
 #include "gpio_app.h"
+#include "audio/a2dp_audio.h"
+#include "sdcard/sdcard.h"
+#include "oled/oled.h"
 
 #endif

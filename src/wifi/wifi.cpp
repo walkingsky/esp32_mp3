@@ -58,14 +58,14 @@ void connect_wifi() // 联网
         for (uint8_t n = 0; n < 10; n++)
         { // 每500毫秒检测一次状态
             // PowerOn_Loading(50);
-            delay(500);
+            delay(50);
         }
         cnt = cnt + 1;
         // Serial.print("cnt:");
         // Serial.println(cnt);
         if (cnt > wifi_connect_cnt)
         {
-            Serial.print("\n超过重试次数\n");
+            Serial.println("超过重试次数");
             break;
         }
     }

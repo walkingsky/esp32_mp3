@@ -11,4 +11,6 @@ void led_init();
 void led_loop();
 void dht_init();
 void dht_loop();
+uint8_t key_loop();
+
 #endif

@@ -83,7 +83,7 @@ void dht_init()
 /*循环获取温湿度*/
 void dht_loop()
 {
-    if (millis() - LastTime2 < 2000) // 延时2秒
+    if (millis() - LastTime2 < 20000) // 延时20秒
         return;
     LastTime2 = millis();
     // Get temperature event and print its value.
@@ -111,4 +111,41 @@ void dht_loop()
         Serial.print(event.relative_humidity);
         Serial.println(F("%"));
     }
+}
+
+uint8_t key_loop()
+{
+    uint16_t an_result = 0;
+    uint32_t volt = 0;
+    an_result = analogRead(ADC_KEY);
+    volt = analogReadMilliVolts(ADC_KEY);
+
+    delay(1);
+    if (an_result < 10) // key1
+    {
+        Serial.printf("KEY1 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
+        return 1;
+    }
+    else if (650 <= an_result && an_result <= 750) // key2
+    {
+        Serial.printf("KEY2 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
+        return 2;
+    }
+    else if (1400 <= an_result && an_result <= 1500) // key3
+    {
+        Serial.printf("KEY3 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
+        return 3;
+    }
+    else if (2180 <= an_result && an_result <= 2280) // key4
+    {
+        Serial.printf("KEY4 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
+        return 4;
+    }
+    else if (3100 <= an_result && an_result <= 3200) // key5
+    {
+        Serial.printf("KEY5 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
+        return 5;
+    }
+    else
+        return 0;
 }

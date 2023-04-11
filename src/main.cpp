@@ -12,7 +12,7 @@ void setup()
 
   Serial.begin(115200);
   readEEpromConf();
-  Serial.printf("eepromConfig wifi ssid:%s password:%s ", eepromConf.wifi_ssid, eepromConf.wifi_password);
+  Serial.printf("eepromConfig wifi ssid:%s password:%s \n\r", eepromConf.wifi_ssid, eepromConf.wifi_password);
 
   connect_wifi(); // 联网处理
 
@@ -26,10 +26,15 @@ void setup()
   Serial.println("waiting for sync");
   setSyncProvider(getNtpTime);
   setSyncInterval(300);
+  pinMode(ADC_KEY, ANALOG);
 
   webServiceBegin(); // http 服务
   led_init();
   dht_init();
+  wm8978Init();
+  // sdcard_init();
+  oled_init();
+  // a2dp_setup();
 }
 
 void loop()
@@ -40,4 +45,8 @@ void loop()
   server.handleClient();
   led_loop();
   dht_loop();
+  key_loop();
+  oled_loop();
+  oled_fps_loop();
+  // delay(10);
 }
