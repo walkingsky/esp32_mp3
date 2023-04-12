@@ -6,4 +6,5 @@
 #include "gpios.h"
 
 void wm8978Init();
+bool wm8978_sdcard();
 #endif

@@ -14,4 +14,6 @@
 #include "sdcard/sdcard.h"
 #include "oled/oled.h"
 
+void mainMenu(int key);
+void file_menu_display();
 #endif
