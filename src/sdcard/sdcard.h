@@ -11,8 +11,10 @@ enum fileType // 类型，0 dir，1 file
 // 存放文件列表的单链表
 struct dirList
 {
+    uint8_t num;    // 计数
     char name[100]; // 目录或文件名
     enum fileType filetype;
+    struct dirList *pre;
     struct dirList *next;
 };
 

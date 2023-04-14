@@ -5,7 +5,8 @@
 // #include <U8x8lib.h>
 //   #include <SPI.h>
 
-// #include <Wire.h>
+#include <Wire.h>
+#include "gpios.h"
 
 void oled_init();
 void oled_loop();

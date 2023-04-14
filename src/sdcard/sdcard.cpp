@@ -51,7 +51,10 @@ struct dirList *list_init()
         printf("malloc head fail\n");
         return NULL;
     }
+    head->pre = NULL;
     head->next = NULL;
+    head->num = 0;
+    // head->name = NULL;
     return head;
 }
 // 插入数据（尾插）
@@ -68,6 +71,8 @@ void list_insert(struct dirList *head, enum fileType filetype, const char *name)
         p = p->next;
 
     p->next = newlist; // 挂在末尾
+    newlist->pre = p;
+    newlist->num = p->num + 1;
 }
 // 释放存储
 void list_free(struct dirList *head)
@@ -121,7 +126,15 @@ void listDir(fs::FS &fs, const char *dirname)
             Serial.println(file.size());
             filetype = TYPE_FILE;
         }
-        list_insert(fileList, filetype, file.name());
+        if (fileList->num == 0)
+        {
+            fileList->filetype = filetype;
+            strcpy(fileList->name, file.name());
+            fileList->num = 1;
+            Serial.println("填写文件列表链表第一个数据");
+        }
+        else
+            list_insert(fileList, filetype, file.name());
         file = root.openNextFile();
     }
 }

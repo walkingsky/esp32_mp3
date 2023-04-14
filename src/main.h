@@ -8,9 +8,9 @@
 #include "eeprom/eeprom.h"
 #include "netservice/ntp.h"
 #include "netservice/webserver.h"
-#include "audio/wm8978.h"
+#include "audio/wm8978card.h"
 #include "gpio_app.h"
-#include "audio/a2dp_audio.h"
+// #include "audio/a2dp_audio.h"
 #include "sdcard/sdcard.h"
 #include "oled/oled.h"
 

@@ -32,6 +32,9 @@ void setup()
   readEEpromConf();
   Serial.printf("eepromConfig wifi ssid:%s password:%s \n\r", eepromConf.wifi_ssid, eepromConf.wifi_password);
 
+  oled_init();
+  oled_loop();
+
   connect_wifi(); // 联网处理
 
   setUpOverTheAirProgramming(); // 开启OTA升级服务
@@ -53,12 +56,10 @@ void setup()
   wm8978Init();
   if (sdcard_inited)
   {
-    wm8978_inited = wm8978_sdcard();
+    // wm8978_inited = wm8978_sdcard();
     selected_file = fileList;
   }
 
-  oled_init();
-  oled_loop();
   file_menu_display();
   // a2dp_setup();
 }
@@ -66,8 +67,8 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-  if (wm8978_inited)
-    audio.loop();
+  // if (wm8978_inited)
+  audio.loop();
   ArduinoOTA.handle(); // OTA升级
   server.handleClient();
   led_loop();

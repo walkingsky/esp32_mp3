@@ -89,7 +89,7 @@ void dht_loop()
     dht.temperature().getEvent(&event);
     if (isnan(event.temperature))
     {
-        Serial.println(F("Error reading temperature!"));
+        // Serial.println(F("Error reading temperature!"));
     }
     else
     {
@@ -101,7 +101,7 @@ void dht_loop()
     dht.humidity().getEvent(&event);
     if (isnan(event.relative_humidity))
     {
-        Serial.println(F("Error reading humidity!"));
+        // Serial.println(F("Error reading humidity!"));
     }
     else
     {
