@@ -6,8 +6,7 @@ WM8978 dac;
 void wm8978Init()
 {
     /* Setup wm8978 I2C interface */
-    if (!dac.begin(I2C_SDA, I2C_SCL, 400000))
-    // if (!dac.begin(4, 21))
+    if (!dac.begin(I2C_SDA, I2C_SCL))
     {
         log_e("Error setting up dac. System halted");
         while (0)
@@ -17,10 +16,15 @@ void wm8978Init()
     dac.setHPvol(63, 63);
     /* set i2s pins */
     i2s_set_dac_mode(I2S_DAC_CHANNEL_DISABLE);
+    /*
     pinMode(I2S_BCK, OUTPUT);
     pinMode(I2S_WS, OUTPUT);
     pinMode(I2S_DOUT, OUTPUT);
     pinMode(I2S_DIN, ANALOG);
+    digitalWrite(I2S_BCK, LOW);
+    digitalWrite(I2S_WS, LOW);
+    digitalWrite(I2S_DOUT, LOW);
+    */
     // audio.i2s_mclk_pin_select(3);
     //  audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT, I2S_DIN);
     audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
