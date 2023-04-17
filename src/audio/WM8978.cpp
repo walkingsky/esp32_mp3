@@ -56,6 +56,7 @@ uint8_t WM8978::Init(void)
   Write_Reg(49, 1 << 1);          // R49,TSDEN,开启过热保护
   Write_Reg(10, 1 << 3);          // R10,SOFTMUTE关闭,128x采样,最佳SNR
   Write_Reg(14, 1 << 3 | 1 << 8); // R14,ADC 128x采样率 and enable high pass filter (3.7Hz cut-off)
+
   return 0;
 }
 
