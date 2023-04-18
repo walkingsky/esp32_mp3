@@ -56,7 +56,7 @@ uint8_t WM8978::Init(void)
   Write_Reg(49, 1 << 1);          // R49,TSDEN,开启过热保护
   Write_Reg(10, 1 << 3);          // R10,SOFTMUTE关闭,128x采样,最佳SNR
   Write_Reg(14, 1 << 3 | 1 << 8); // R14,ADC 128x采样率 and enable high pass filter (3.7Hz cut-off)
-
+  // Write_Reg(14, 1 << 3);
   return 0;
 }
 
@@ -71,7 +71,7 @@ uint16_t WM8978::Read_Reg(uint8_t reg)
 // WM8978 DAC/ADC配置
 // adcen:adc使能(1)/关闭(0)
 // dacen:dac使能(1)/关闭(0)
-void WM8978::cfgADDA(uint8_t dacen, uint8_t adcen)
+void WM8978::cfgADDA(uint8_t adcen, uint8_t dacen)
 {
   uint16_t regval;
   regval = WM8978::Read_Reg(3); // 读取R3
@@ -352,7 +352,7 @@ bool WM8978::begin()
     return false;
   }
   cfgI2S(2, 0);      // Philips 16bit
-  cfgADDA(1, 1);     // Enable ADC DAC
+  cfgADDA(0, 1);     // Enable ADC DAC
   cfgInput(0, 0, 0); // mic, linein, aux - Note: M5Stack node has only internal microphones connected
   setMICgain(0);
   setAUXgain(0);

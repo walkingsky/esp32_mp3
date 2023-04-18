@@ -13,13 +13,14 @@ void wm8978Init()
         while (0)
             delay(100);
     }
-    dac.setSPKvol(63); /* max 63 */
-    dac.setHPvol(63, 63);
+    dac.setSPKvol(45); /* max 63 */
+    dac.setHPvol(40, 40);
     /* set i2s pins */
     i2s_set_dac_mode(I2S_DAC_CHANNEL_DISABLE);
 
     audio.i2s_mclk_pin_select(3);
-    // audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT, I2S_DIN);
+    // pinMode(I2S_DIN, INPUT);
+    // audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
     audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
 
     log_e("Connected. Starting MP3...");
@@ -28,6 +29,34 @@ void wm8978Init()
     audio.setVolume(10);
     int i = audio.getCodec();
     log_e("host:%s code:%d", host ? "true" : "false", i);
+}
+
+void wm8978_record(char *path)
+{
+    if (audio.isRunning()) // 暂停播放
+        audio.stopSong();
+
+    // dac.Read_Reg(2, 0x1BF);
+    // dac.cfgI2S(2, 0);
+    dac.cfgADDA(1, 0);
+    dac.cfgInput(1, 1, 0);
+    dac.setMICgain(30);
+    // dac.setAUXgain(0);
+    dac.setLINEINgain(6);
+    dac.cfgOutput(0, 1);
+    dac.cfgI2S(2, 0);
+    audio.RecordToSD(SD, path);
+}
+
+void wm8978_stop_record()
+{
+    dac.cfgADDA(0, 1);
+    dac.cfgInput(0, 0, 0);
+    dac.setMICgain(0);
+    dac.setAUXgain(0);
+    dac.setLINEINgain(0);
+    dac.cfgOutput(1, 0);
+    audio.StopRecord();
 }
 
 bool wm8978_sdcard()

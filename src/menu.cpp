@@ -1,5 +1,6 @@
 #include "main.h"
 #include "oled/oled.h"
+#include "audio/wm8978card.h"
 
 // extern uint8_t key_value;
 extern struct dirList *fileList; // 目录链表
@@ -92,12 +93,21 @@ void mainMenu(int key) // 主菜单
 
     if (key == 5) // ok键
     {
-        if (audio.isRunning())
+        /*
+        if (audio.isRunning() && !audio.isRedording())
             audio.pauseResume();
-        else
+        else if (!audio.isRunning() && !audio.isRedording())
             audio.pauseResume();
-
-        Serial.printf("Bit Rate:%ld \r\n", audio.getBitRate());
+        else if (!audio.isRunning() && !audio.isRedording())
+            audio.RecordToSD();
+        else if (!audio.isRunning() && audio.isRedording())
+            audio.StopRecord();
+        */
+        if (audio.isRedording())
+            wm8978_stop_record();
+        else if (!audio.isRedording())
+            wm8978_record((char *)"record.wav");
+        // Serial.printf("Bit Rate:%ld \r\n", audio.getBitRate());
     }
 }
 

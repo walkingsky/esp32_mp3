@@ -7,4 +7,6 @@
 
 void wm8978Init();
 bool wm8978_sdcard();
+void wm8978_record(char *path);
+void wm8978_stop_record();
 #endif
