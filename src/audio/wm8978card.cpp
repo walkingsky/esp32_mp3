@@ -1,8 +1,13 @@
 #include "wm8978card.h"
 
+#ifdef _COMPONENT_WM8978_AUDIO
 Audio audio(false, I2S_DAC_CHANNEL_DISABLE, I2S_NUM_0);
+#endif
+#ifdef _COMPONENT_WM8978
 WM8978 dac;
+#endif
 
+#ifdef _COMPONENT_WM8978
 void wm8978Init()
 {
     /* Setup wm8978 I2C interface */
@@ -17,18 +22,15 @@ void wm8978Init()
     dac.setHPvol(40, 40);
     /* set i2s pins */
     i2s_set_dac_mode(I2S_DAC_CHANNEL_DISABLE);
-
+}
+#endif
+#ifdef _COMPONENT_WM8978_AUDIO
+void wm8978_i2s_init()
+{
     audio.i2s_mclk_pin_select(3);
     // pinMode(I2S_DIN, INPUT);
     // audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
     audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
-
-    log_e("Connected. Starting MP3...");
-    bool host = audio.connecttohost("http://192.168.1.7/2603174988.mp3");
-    // bool host = audio.connecttohost("http://icecast.omroep.nl/3fm-bb-mp3");
-    audio.setVolume(10);
-    int i = audio.getCodec();
-    log_e("host:%s code:%d", host ? "true" : "false", i);
 }
 
 void wm8978_record(char *path)
@@ -72,6 +74,13 @@ bool wm8978_sdcard()
     }
     */
 
+    log_e("Connected. Starting MP3...");
+    bool host = audio.connecttohost("http://192.168.1.7/2603174988.mp3");
+    // bool host = audio.connecttohost("http://icecast.omroep.nl/3fm-bb-mp3");
+    audio.setVolume(10);
+    int i = audio.getCodec();
+    log_e("host:%s code:%d", host ? "true" : "false", i);
+
     result = audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
     audio.setVolume(12); // 0...21
 
@@ -96,3 +105,4 @@ void audio_eof_mp3(const char *info)
     Serial.print("eof_mp3     ");
     Serial.println(info);
 }
+#endif

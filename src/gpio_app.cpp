@@ -1,9 +1,10 @@
 #include "gpio_app.h"
 
 bool LED_status = false;
-
+#ifdef _COMPONENT_DHT11
 DHT_Unified dht(DHTPIN, DHTTYPE);
-
+#endif
+#ifdef _COMPONENT_LED
 /* 初始化配置LED的IO口 */
 void led_init()
 {
@@ -30,7 +31,8 @@ void led_loop()
         }
     }
 }
-
+#endif
+#ifdef _COMPONENT_DHT11
 /*初始化 dht11 温湿度传感器*/
 void dht_init()
 {
@@ -110,7 +112,7 @@ void dht_loop()
         Serial.println(F("%"));
     }
 }
-
+#endif
 uint8_t key_loop()
 {
     uint16_t an_result = 0;

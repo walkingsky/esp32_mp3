@@ -4388,7 +4388,7 @@ void Audio::processAudioHeaderData()
             break;
         }
     }
-
+    log_e("headerline readed");
     if (!pos && m_f_ctseen)
     {                            // audio header complete?
         m_datamode = AUDIO_DATA; // Expecting data now
