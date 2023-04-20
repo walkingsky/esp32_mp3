@@ -348,15 +348,6 @@ void Audio::processRecord() // 录音
 
 void Audio::StopRecord() // 停止录音
 {
-    byte wav_header_fmt[44];
-    audiofile.seek(0);
-    CreateWavHeader(wav_header_fmt, m_record_size);
-    audiofile.write(wav_header_fmt, 44);
-
-    if (audiofile)
-    {
-        audiofile.close();
-    }
 
     m_f_recordering = false;
     free(i2s_readraw_buff);
@@ -367,6 +358,16 @@ void Audio::StopRecord() // 停止录音
     i2s_driver_install((i2s_port_t)m_i2s_num, &m_i2s_config, 0, NULL);
     I2Sstart(m_i2s_num);
     */
+
+    byte wav_header_fmt[44];
+    audiofile.seek(0);
+    CreateWavHeader(wav_header_fmt, m_record_size);
+    audiofile.write(wav_header_fmt, 44);
+
+    if (audiofile)
+    {
+        audiofile.close();
+    }
     setDefaults();
 }
 
@@ -417,6 +418,9 @@ esp_err_t Audio::RecordToSD(fs::FS &fs, const char *path)
 
     // free buffers an set defaults
     m_i2s_bytesRecord = 0;
+    // wav 文件提前写入 44个字节的空的头
+    for (int i = 0; i < 44; i++)
+        audiofile.write(0x00);
     return true;
 }
 
@@ -439,7 +443,7 @@ void Audio::CreateWavHeader(byte *header, int waveDataSize) // 创建wav文件�
     header[13] = 'm';
     header[14] = 't';
     header[15] = ' ';
-    header[16] = 0x10; // linear PCM
+    header[16] = 0x10; // 大小为16个字节
     header[17] = 0x00;
     header[18] = 0x00;
     header[19] = 0x00;
@@ -467,7 +471,7 @@ void Audio::CreateWavHeader(byte *header, int waveDataSize) // 创建wav文件�
     header[30] = 0x00;
     header[31] = 0x00;
 
-    header[32] = 0x04; // 16bit stereo
+    header[32] = 0x04; // BlockAlign每个采样所需的字节数 = NumChannels * BitsPerSample / 8
     header[33] = 0x00;
     header[34] = 0x10; // 16bit
     header[35] = 0x00;

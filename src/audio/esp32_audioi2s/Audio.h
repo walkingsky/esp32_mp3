@@ -624,7 +624,7 @@ private:
     size_t m_i2s_bytesRecord = 0;    // i2s 读取数据的大小
     size_t m_sample_size = 4 * 1024; // 每次读取 i2s的数据大小
     uint8_t *i2s_readraw_buff;       // i2s读取数据的buff
-    uint8_t m_record_size = 0;       // 录音的数据大小
+    uint32_t m_record_size = 0;      // 录音的数据大小
 };
 
 //----------------------------------------------------------------------------------------------------------------------
