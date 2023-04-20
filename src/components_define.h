@@ -3,12 +3,12 @@
 
 // #define _COMPONENT_CODHT11
 #define _COMPONENT_WIFI
-// #define _COMPONENT_HTTPSERVER
+#define _COMPONENT_HTTPSERVER
 // #define _COMPONENT_OTA
 #define _COMPONENT_NTP
-#define _COMPONENT_BLUETOOTH // 蓝牙声卡
-// #define _COMPONENT_LED
-// #define _COMPONENT_SDCARD
+// #define _COMPONENT_BLUETOOTH // 蓝牙声卡
+//  #define _COMPONENT_LED
+#define _COMPONENT_SDCARD
 #define _COMPONENT_WM8978
 #define _COMPONENT_WM8978_AUDIO
 

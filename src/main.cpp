@@ -70,9 +70,7 @@ void setup()
   setSyncInterval(300);
 #endif
   pinMode(ADC_KEY, ANALOG);
-#ifdef _COMPONENT_HTTPSERVER
-  webServiceBegin(); // http 服务
-#endif
+
 #ifdef _COMPONENT_LED
   led_init();
 #endif
@@ -105,6 +103,10 @@ void setup()
 
   bt_audio.I2S(I2S_BCK, I2S_DOUT, I2S_WS);
   bt_audio.i2s_mclk_pin_select(3);
+#endif
+
+#ifdef _COMPONENT_HTTPSERVER
+  webServiceBegin(); // http 服务
 #endif
 }
 

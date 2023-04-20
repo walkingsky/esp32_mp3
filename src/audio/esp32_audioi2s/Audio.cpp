@@ -313,7 +313,29 @@ void Audio::processRecord() // 录音
 
     esp_err_t err = i2s_read((i2s_port_t)m_i2s_num, (void *)InBuff.getWritePtr(), bytesCanBeWritten, &m_i2s_bytesRecord, 1000);
     // esp_err_t err = i2s_read((i2s_port_t)m_i2s_num, (void *)&i2s_readraw_buff, m_sample_size, &m_i2s_bytesRecord, 1000);
-    // AUDIO_INFO(sprintf(chbuf, "i2s_read \"%d\"", m_i2s_bytesRecord);)
+    //  AUDIO_INFO(sprintf(chbuf, "i2s_read \"%d\"", m_i2s_bytesRecord);)
+
+    int8_t *_data8_L = NULL;
+    _data8_L = (int8_t *)InBuff.getWritePtr();
+    uint16_t _val = 0, _val1 = 0, _val2 = 0, _val3 = 0;
+    uint16_t _cnt = m_i2s_bytesRecord;
+    uint8_t a = 250, b = 255;
+    for (uint16_t i = 0; i < _cnt; i += 2)
+    {
+        a = *_data8_L;
+        _data8_L++;
+        b = *_data8_L;
+        _val = (b << 8) | a;
+        _val = abs(_val);
+        if (_val >= 3000)
+            _val1++;
+        else if (_val >= 300)
+            _val2++;
+        else
+            _val3++;
+        _data8_L++;
+    }
+    log_e("total:%d,\t>3000:%04d,\t>300:%04d,\t<300:%04d ", m_i2s_bytesRecord, _val1, _val2, _val3);
     if (err != ESP_OK)
     {
         log_e("ESP32 Errorcode %i", err);
@@ -4388,7 +4410,6 @@ void Audio::processAudioHeaderData()
             break;
         }
     }
-    log_e("headerline readed");
     if (!pos && m_f_ctseen)
     {                            // audio header complete?
         m_datamode = AUDIO_DATA; // Expecting data now

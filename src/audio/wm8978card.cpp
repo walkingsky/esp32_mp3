@@ -30,7 +30,7 @@ void wm8978_i2s_init()
     audio.i2s_mclk_pin_select(3);
     // pinMode(I2S_DIN, INPUT);
     // audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
-    audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
+    audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT, I2S_DIN);
 }
 
 void wm8978_record(char *path)
@@ -41,9 +41,9 @@ void wm8978_record(char *path)
     // dac.Read_Reg(2, 0x1BF);
     // dac.cfgI2S(2, 0);
     dac.cfgADDA(1, 0);
-    dac.cfgInput(1, 1, 0);
-    dac.setMICgain(30);
-    // dac.setAUXgain(0);
+    dac.cfgInput(0, 1, 0);
+    dac.setMICgain(0);
+    dac.setAUXgain(0);
     dac.setLINEINgain(6);
     dac.cfgOutput(0, 1);
     dac.cfgI2S(2, 0);
