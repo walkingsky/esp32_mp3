@@ -20,8 +20,8 @@ void wm8978_i2s_init();
 
 void wm8978_i2s_init();
 bool wm8978_sdcard();
-void wm8978_record(char *path);
-void wm8978_stop_record();
+void wm8978_record(char *path,bool long_record = false);
+void wm8978_stop_record(bool long_record = false);
 #endif
 
 #endif

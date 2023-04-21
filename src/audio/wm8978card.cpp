@@ -11,7 +11,7 @@ WM8978 dac;
 void wm8978Init()
 {
     /* Setup wm8978 I2C interface */
-    pinMode(I2S_MCLK, OPEN_DRAIN); // v1.0 板子上把io14 设为开路，MCLK 跳线到RXD0（IO3）
+    // pinMode(I2S_MCLK, OPEN_DRAIN); // v1.0 板子上把io14 设为开路，MCLK 跳线到RXD0（IO3）
     if (!dac.begin(I2C_SDA, I2C_SCL))
     {
         log_e("Error setting up dac. System halted");
@@ -33,7 +33,7 @@ void wm8978_i2s_init()
     audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT, I2S_DIN);
 }
 
-void wm8978_record(char *path)
+void wm8978_record(char *path, bool long_record)
 {
     if (audio.isRunning()) // 暂停播放
         audio.stopSong();
@@ -42,15 +42,18 @@ void wm8978_record(char *path)
     // dac.cfgI2S(2, 0);
     dac.cfgADDA(1, 0);
     dac.cfgInput(0, 1, 0);
-    dac.setMICgain(0);
+    dac.setMICgain(32);
     dac.setAUXgain(0);
-    dac.setLINEINgain(6);
+    dac.setLINEINgain(5);
     dac.cfgOutput(0, 1);
     dac.cfgI2S(2, 0);
-    audio.RecordToSD(SD, path);
+    if (long_record)
+        audio.LongRecord();
+    else
+        audio.RecordToSD(SD, path);
 }
 
-void wm8978_stop_record()
+void wm8978_stop_record(bool long_record)
 {
     dac.cfgADDA(0, 1);
     dac.cfgInput(0, 0, 0);
@@ -58,7 +61,10 @@ void wm8978_stop_record()
     dac.setAUXgain(0);
     dac.setLINEINgain(0);
     dac.cfgOutput(1, 0);
-    audio.StopRecord();
+    if (long_record)
+        audio.StopLongRecord();
+    else
+        audio.StopRecord();
 }
 
 bool wm8978_sdcard()

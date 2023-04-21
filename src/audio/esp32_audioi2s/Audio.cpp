@@ -302,40 +302,10 @@ void Audio::processRecord() // 录音
 
     uint32_t bytesCanBeWritten = 0;
 
-    /*
-    if (m_f_firstCall)
-    { // runs only one time per connection, prepare for start
-        m_f_firstCall = false;
-        return;
-    }
-    */
     bytesCanBeWritten = InBuff.writeSpace();
 
     esp_err_t err = i2s_read((i2s_port_t)m_i2s_num, (void *)InBuff.getWritePtr(), bytesCanBeWritten, &m_i2s_bytesRecord, 1000);
-    // esp_err_t err = i2s_read((i2s_port_t)m_i2s_num, (void *)&i2s_readraw_buff, m_sample_size, &m_i2s_bytesRecord, 1000);
-    //  AUDIO_INFO(sprintf(chbuf, "i2s_read \"%d\"", m_i2s_bytesRecord);)
 
-    int8_t *_data8_L = NULL;
-    _data8_L = (int8_t *)InBuff.getWritePtr();
-    uint16_t _val = 0, _val1 = 0, _val2 = 0, _val3 = 0;
-    uint16_t _cnt = m_i2s_bytesRecord;
-    uint8_t a = 250, b = 255;
-    for (uint16_t i = 0; i < _cnt; i += 2)
-    {
-        a = *_data8_L;
-        _data8_L++;
-        b = *_data8_L;
-        _val = (b << 8) | a;
-        _val = abs(_val);
-        if (_val >= 3000)
-            _val1++;
-        else if (_val >= 300)
-            _val2++;
-        else
-            _val3++;
-        _data8_L++;
-    }
-    log_e("total:%d,\t>3000:%04d,\t>300:%04d,\t<300:%04d ", m_i2s_bytesRecord, _val1, _val2, _val3);
     if (err != ESP_OK)
     {
         log_e("ESP32 Errorcode %i", err);
@@ -344,6 +314,121 @@ void Audio::processRecord() // 录音
     }
     audiofile.write((uint8_t *)InBuff.getWritePtr(), m_i2s_bytesRecord);
     m_record_size += m_i2s_bytesRecord;
+}
+
+void Audio::processLongRecord() // 录音
+{
+
+    uint32_t bytesCanBeWritten = 0;
+
+    bytesCanBeWritten = InBuff.writeSpace();
+
+    esp_err_t err = i2s_read((i2s_port_t)m_i2s_num, (void *)InBuff.getWritePtr(), bytesCanBeWritten - 1, &m_i2s_bytesRecord, 1000);
+
+    int8_t *_data8 = NULL;
+    _data8 = (int8_t *)InBuff.getWritePtr();
+    int8_t a, b;
+    int16_t c;
+    uint16_t _val = 0;
+    // uint16_t threshold = (uint16_t)m_i2s_bytesRecord / (2 * 2);
+    uint16_t threshold = 1800;
+    for (uint16_t i = 0; i < m_i2s_bytesRecord; i += 2) // 采样。。。 2x16倍
+    {
+        b = *_data8;
+        _data8++;
+        a = *_data8;
+        c = a << 8 | b;
+        if (abs(c) > 60) // 音量门限
+            _val++;
+        _data8++;
+    }
+    // log_e("m_i2s_bytesRecord:%d\t", m_i2s_bytesRecord);
+    // log_e("_val:%d\tm_record_size:%d\tm_LR_nosound_cnt%d\tm_LR_havesound_cnt%d", _val, m_record_size, m_LR_nosound_cnt, m_LR_havesound_cnt);
+    // return;
+    //  触发录音写入文件和停止写入文件的逻辑
+    if (m_LR_start == false && _val > threshold) // 占比超过总数的1/4 触发写入
+    {
+        if (m_LR_havesound_cnt > 4) // 开始录音的计数
+        {
+            m_LR_havesound_cnt = 0;
+            m_LR_start = true;
+            m_LR_nosound_cnt = 0;
+            char _file_name[22];
+            makeFileName(_file_name);
+            // 开始记录文件
+            audiofile = SD.open(_file_name, "w", true);
+            if (!audiofile)
+            {
+
+                AUDIO_INFO(sprintf(chbuf, "Failed to open file for recording"); vTaskDelay(2);)
+                m_LR_start = false;
+                m_LR_nosound_cnt = 0;
+            }
+            // m_i2s_bytesRecord = 0;
+            m_record_size = 0;
+            //  wav 文件提前写入 44个字节的空的头
+            for (int i = 0; i < 44; i++)
+                audiofile.write(0x00);
+
+            audiofile.write((uint8_t *)InBuff.getWritePtr(), m_i2s_bytesRecord);
+            m_record_size += m_i2s_bytesRecord;
+        }
+        else
+        {
+            m_LR_havesound_cnt++;
+        }
+    }
+    else if (m_LR_start == false && _val < threshold)
+    {
+        m_LR_havesound_cnt = 0; // 声音中间断掉，重新计数
+    }
+    else if (m_LR_start == true && _val > threshold)
+    {
+        audiofile.write((uint8_t *)InBuff.getWritePtr(), m_i2s_bytesRecord);
+        m_record_size += m_i2s_bytesRecord;
+        m_LR_nosound_cnt = 0; // 有声音就清零计数
+    }
+    else if (m_LR_start == true && _val <= threshold)
+    {                                   // 静音计数
+        if (m_LR_nosound_cnt > 15 * 10) // 超过15秒//停止录音,新存文件(每次获取 6400 的数据 16*16000*2/8 的十分之一)
+        {
+            byte wav_header_fmt[44];
+            audiofile.seek(0);
+            CreateWavHeader(wav_header_fmt, m_record_size);
+            audiofile.write(wav_header_fmt, 44);
+
+            m_LR_nosound_cnt = 0;
+            m_LR_start = false;
+            m_record_size = 0;
+        }
+        else
+        {
+            audiofile.write((uint8_t *)InBuff.getWritePtr(), m_i2s_bytesRecord);
+            m_record_size += m_i2s_bytesRecord;
+            m_LR_nosound_cnt++;
+        }
+    }
+    /*
+    uint16_t _val = 0, _val1 = 0, _val2 = 0, _val3 = 0;
+    uint16_t _cnt = m_i2s_bytesRecord;
+    uint8_t a = 250, b = 255;
+    for (uint16_t i = 0; i < _cnt; i += 2)
+    {
+        a = *_data8;
+        _data8++;
+        b = *_data8;
+        _val = (b << 8) | a;
+        _val = abs(_val);
+        if (_val >= 3000)
+            _val1++;
+        else if (_val >= 300)
+            _val2++;
+        else
+            _val3++;
+        _data8++;
+    }
+    log_e("total:%d,\t>3000:%04d,\t>300:%04d,\t<300:%04d ", m_i2s_bytesRecord, _val1, _val2, _val3);
+    */
 }
 
 void Audio::StopRecord() // 停止录音
@@ -371,6 +456,26 @@ void Audio::StopRecord() // 停止录音
     setDefaults();
 }
 
+void Audio::StopLongRecord() // 停止录音
+{
+
+    m_LR_recordering = false;
+    free(i2s_readraw_buff);
+    m_i2s_bytesRecord = 0;
+
+    if (audiofile) // audiofile 还在打开状态
+    {
+        byte wav_header_fmt[44];
+        audiofile.seek(0);
+        CreateWavHeader(wav_header_fmt, m_record_size);
+        audiofile.write(wav_header_fmt, 44);
+
+        audiofile.close();
+    }
+
+    setDefaults();
+}
+
 // 添加录音功能
 esp_err_t Audio::RecordToSD(fs::FS &fs, const char *path)
 {
@@ -380,14 +485,6 @@ esp_err_t Audio::RecordToSD(fs::FS &fs, const char *path)
     setDefaults();
     m_f_recordering = true;
 
-    // I2Sstop(m_i2s_num);
-    /*
-    i2s_driver_uninstall((i2s_port_t)m_i2s_num);
-    m_i2s_config.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX); // 设置成接收模式
-    i2s_driver_install((i2s_port_t)m_i2s_num, &m_i2s_config, 0, NULL);
-    setSampleRate(16000); // 默认 16000
-    i2s_start((i2s_port_t)m_i2s_num);
-    */
     setSampleRate(16000);
     // 文件处理
     char audioName[256];
@@ -422,6 +519,13 @@ esp_err_t Audio::RecordToSD(fs::FS &fs, const char *path)
     for (int i = 0; i < 44; i++)
         audiofile.write(0x00);
     return true;
+}
+
+void Audio::LongRecord() // 持续录音
+{
+    setDefaults();
+    m_LR_recordering = true;
+    setSampleRate(16000);
 }
 
 void Audio::CreateWavHeader(byte *header, int waveDataSize) // 创建wav文件头
@@ -578,13 +682,15 @@ void Audio::setDefaults()
     m_f_tts = false;
     m_f_firstCall = true; // InitSequence for processWebstream and processLokalFile
     m_f_running = false;
-    m_f_loop = false;        // Set if audio file should loop
-    m_f_unsync = false;      // set within ID3 tag but not used
-    m_f_exthdr = false;      // ID3 extended header
-    m_f_rtsp = false;        // RTSP (m3u8)stream
-    m_f_m3u8data = false;    // set again in processM3U8entries() if necessary
-    m_f_Log = true;          // logging always allowed
-    m_f_recordering = false; // 录音标记
+    m_f_loop = false;         // Set if audio file should loop
+    m_f_unsync = false;       // set within ID3 tag but not used
+    m_f_exthdr = false;       // ID3 extended header
+    m_f_rtsp = false;         // RTSP (m3u8)stream
+    m_f_m3u8data = false;     // set again in processM3U8entries() if necessary
+    m_f_Log = true;           // logging always allowed
+    m_f_recordering = false;  // 录音标记
+    m_LR_recordering = false; // 持续录音标记
+    m_record_size = 0;
     m_i2s_bytesRecord = 0;
     free(i2s_readraw_buff); // 释放i2s读取的数据缓冲
 
@@ -3098,6 +3204,10 @@ void Audio::loop()
     if (m_f_recordering) // 处理录音
     {
         processRecord();
+    }
+    if (m_LR_recordering) // 处理录音
+    {
+        processLongRecord();
     }
     return;
 }

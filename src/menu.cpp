@@ -8,6 +8,10 @@ extern struct dirList *fileList; // 目录链表
 #ifdef _COMPONENT_WM8978_AUDIO
 extern Audio audio;
 #endif
+
+#define ISLONGRECORD 1
+#define NOTLONGRECORD 0
+
 // extern U8G2_SSD1306_128X64_NONAME_F_SW_I2C u8g2;
 extern U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2;
 // extern U8G2_SSD1306_128X64_NONAME_F_2ND_HW_I2C u8g2;
@@ -107,22 +111,22 @@ void mainMenu(int key) // 主菜单
 
     if (key == 5) // ok键
     {
-        /*
-        if (audio.isRunning() && !audio.isRedording())
-            audio.pauseResume();
-        else if (!audio.isRunning() && !audio.isRedording())
-            audio.pauseResume();
-        else if (!audio.isRunning() && !audio.isRedording())
-            audio.RecordToSD();
-        else if (!audio.isRunning() && audio.isRedording())
-            audio.StopRecord();
-        */
 #ifdef _COMPONENT_WM8978_AUDIO
-        if (audio.isRedording())
-            wm8978_stop_record();
-        else if (!audio.isRedording())
-            wm8978_record((char *)"record.wav");
-            // Serial.printf("Bit Rate:%ld \r\n", audio.getBitRate());
+        if (1)
+        {
+            if (audio.isLRRedording())
+                wm8978_stop_record(ISLONGRECORD);
+            else if (!audio.isRedording())
+                wm8978_record(" ", ISLONGRECORD);
+        }
+        else
+        {
+            if (audio.isRedording())
+                wm8978_stop_record(NOTLONGRECORD);
+            else if (!audio.isRedording())
+                wm8978_record((char *)"record.wav", NOTLONGRECORD);
+        }
+
 #endif
     }
 }

@@ -17,6 +17,7 @@
 #include <libb64/cencode.h>
 
 #include <driver/i2s.h>
+#include <TimeLib.h>
 
 #ifndef AUDIO_NO_SD_FS
 #include <SPI.h>
@@ -181,6 +182,7 @@ public:
     bool pauseResume();
     bool isRunning() { return m_f_running; }
     bool isRedording() { return m_f_recordering; }
+    bool isLRRedording() { return m_LR_recordering; }
     void loop();
     uint32_t stopSong();
     void forceMono(bool m);
@@ -221,6 +223,9 @@ public:
     };
     esp_err_t RecordToSD(fs::FS &fs, const char *path); // 录音到SD卡文件
     void StopRecord();                                  // 停止录音
+    void StopLongRecord();                              // 停止录音
+    void processLongRecord();
+    void LongRecord();
 
 private:
     void UTF8toASCII(char *str);
@@ -438,6 +443,11 @@ private:
         return expectedLen;
     }
 
+    void makeFileName(char *buffer)
+    {
+        sprintf(buffer, "/%04d%02d%02d_%02d%02d%02d.wav", year(), month(), day(), hour(), minute(), second()); // 以年月日_时分秒的形式表示当前时间
+    }
+
 private:
     const char *codecname[9] = {"unknown", "WAV", "MP3", "AAC", "M4A", "FLAC", "OGG", "OGG FLAC", "OPUS"};
     void CreateWavHeader(byte *header, int waveDataSize); // 创建wav文件头
@@ -594,7 +604,6 @@ private:
     bool m_f_webstream = false;              // Play from URL
     bool m_f_ssl = false;
     bool m_f_running = false;
-    bool m_f_recordering = false;   // 录音中
     bool m_f_firstCall = false;     // InitSequence for processWebstream and processLokalFile
     bool m_f_ctseen = false;        // First line of header seen or not
     bool m_f_chunked = false;       // Station provides chunked transfer
@@ -621,10 +630,15 @@ private:
     int8_t m_gain0 = 0; // cut or boost filters (EQ)
     int8_t m_gain1 = 0;
     int8_t m_gain2 = 0;
+    bool m_f_recordering = false;    // 录音中
+    bool m_LR_recordering = false;   // 持续录音
     size_t m_i2s_bytesRecord = 0;    // i2s 读取数据的大小
     size_t m_sample_size = 4 * 1024; // 每次读取 i2s的数据大小
     uint8_t *i2s_readraw_buff;       // i2s读取数据的buff
     uint32_t m_record_size = 0;      // 录音的数据大小
+    uint8_t m_LR_nosound_cnt = 0;    // 判断没有声音的计数
+    uint8_t m_LR_havesound_cnt = 0;  // 判断有声音的计数
+    bool m_LR_start = false;
 };
 
 //----------------------------------------------------------------------------------------------------------------------
