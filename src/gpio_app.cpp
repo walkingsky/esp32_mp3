@@ -41,6 +41,7 @@ void dht_init()
     // Print temperature sensor details.
     sensor_t sensor;
     dht.temperature().getSensor(&sensor);
+    /*
     Serial.println(F("------------------------------------"));
     Serial.println(F("Temperature Sensor"));
     Serial.print(F("Sensor Type: "));
@@ -60,7 +61,9 @@ void dht_init()
     Serial.println(F("°C"));
     Serial.println(F("------------------------------------"));
     // Print humidity sensor details.
+    */
     dht.humidity().getSensor(&sensor);
+    /*
     Serial.println(F("Humidity Sensor"));
     Serial.print(F("Sensor Type: "));
     Serial.println(sensor.name);
@@ -78,39 +81,48 @@ void dht_init()
     Serial.print(sensor.resolution);
     Serial.println(F("%"));
     Serial.println(F("------------------------------------"));
+    */
 }
 
 /*循环获取温湿度*/
-void dht_loop()
+struct DHT_result dht_loop()
 {
+    struct DHT_result dth_result;
+    /* 取消全局变量控制获取数据频率
     if (millis() - LastTime2 < TEMPERATURE_DELAY) // 延时20秒
         return;
     LastTime2 = millis();
+    */
     // Get temperature event and print its value.
     sensors_event_t event;
     dht.temperature().getEvent(&event);
     if (isnan(event.temperature))
     {
         // Serial.println(F("Error reading temperature!"));
+        dth_result.temperature = -100;
     }
     else
     {
-        Serial.print(F("Temperature: "));
-        Serial.print(event.temperature);
-        Serial.println(F("°C"));
+        // Serial.print(F("Temperature: "));
+        // Serial.print(event.temperature);
+        // Serial.println(F("°C"));
+        dth_result.temperature = event.temperature;
     }
     // Get humidity event and print its value.
     dht.humidity().getEvent(&event);
     if (isnan(event.relative_humidity))
     {
         // Serial.println(F("Error reading humidity!"));
+        dth_result.humidity = -1;
     }
     else
     {
-        Serial.print(F("Humidity: "));
-        Serial.print(event.relative_humidity);
-        Serial.println(F("%"));
+        // Serial.print(F("Humidity: "));
+        // Serial.print(event.relative_humidity);
+        // Serial.println(F("%"));
+        dth_result.humidity = event.relative_humidity;
     }
+    return dth_result;
 }
 #endif
 uint8_t key_loop()

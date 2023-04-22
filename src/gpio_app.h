@@ -2,6 +2,7 @@
 #define __LED_H__
 #include <Arduino.h>
 #include "gpios.h"
+#include "components_define.h"
 #ifdef _COMPONENT_DHT11
 #include <DHT.h>
 #include <DHT_U.h>
@@ -18,7 +19,14 @@
 extern unsigned long LastTime1; // LED 的时间间隔
 #endif
 #ifdef _COMPONENT_DHT11
-extern unsigned long LastTime2; // DHT的时间间隔
+//extern unsigned long LastTime2; // DHT的时间间隔
+
+struct DHT_result
+{
+    float humidity = 0;
+    float temperature = 0;
+} ;
+
 #endif
 extern unsigned long LastTimeKey;
 
@@ -30,7 +38,7 @@ void led_loop();
 #endif
 #ifdef _COMPONENT_DHT11
 void dht_init();
-void dht_loop();
+struct DHT_result dht_loop();
 #endif
 uint8_t key_loop();
 

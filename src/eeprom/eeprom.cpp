@@ -12,7 +12,7 @@ void readEEpromConf()
     {
         nvs_flash_erase(); // reformats
         nvs_flash_init();  // initializes
-        Serial.print("重新格式化nvs flash\n");
+        // Serial.print("重新格式化nvs flash\n");
         while (true)
             ;
     }

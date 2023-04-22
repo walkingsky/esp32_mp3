@@ -31,8 +31,7 @@
 #ifdef _COMPONENT_BLUETOOTH
 #include "bluetooth/btAudio.h"
 #endif
-void mainMenu(int key);
-#ifdef _COMPONENT_SDCARD
-void file_menu_display();
-#endif
+
+#include "menu.h"
+
 #endif

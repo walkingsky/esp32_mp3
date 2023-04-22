@@ -10,5 +10,5 @@
 
 void oled_init();
 void oled_loop();
-void drawUTF8String(uint8_t x, uint8_t y, String str, bool clear);
+// void drawUTF8String(uint8_t x, uint8_t y, String str, bool clear);
 #endif

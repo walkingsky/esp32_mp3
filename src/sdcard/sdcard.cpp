@@ -24,8 +24,8 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
     {
         if (file.isDirectory())
         {
-            Serial.print("  DIR : ");
-            Serial.println(file.name());
+            // Serial.print("  DIR : ");
+            // Serial.println(file.name());
             if (levels)
             {
                 listDir(fs, file.path(), levels - 1);
@@ -33,10 +33,10 @@ void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
         }
         else
         {
-            Serial.print("  FILE: ");
-            Serial.print(file.name());
-            Serial.print("  SIZE: ");
-            Serial.println(file.size());
+            // Serial.print("  FILE: ");
+            // Serial.print(file.name());
+            // Serial.print("  SIZE: ");
+            // Serial.println(file.size());
         }
         file = root.openNextFile();
     }
@@ -48,7 +48,7 @@ struct dirList *list_init()
     struct dirList *head = (struct dirList *)malloc(sizeof(struct dirList));
     if (NULL == head)
     {
-        printf("malloc head fail\n");
+        // printf("malloc head fail\n");
         return NULL;
     }
     head->pre = NULL;
@@ -114,16 +114,18 @@ void listDir(fs::FS &fs, const char *dirname)
     {
         if (file.isDirectory())
         {
-            Serial.print("  DIR : ");
-            Serial.println(file.name());
+            // Serial.print("  DIR : ");
+            // Serial.println(file.name());
             filetype = TYPE_DIR;
+            file = root.openNextFile(); // 列表里跳过目录
+            continue;                   // 列表里跳过目录
         }
         else
         {
-            Serial.print("  FILE: ");
-            Serial.print(file.name());
-            Serial.print("  SIZE: ");
-            Serial.println(file.size());
+            // Serial.print("  FILE: ");
+            // Serial.print(file.name());
+            // Serial.print("  SIZE: ");
+            // Serial.println(file.size());
             filetype = TYPE_FILE;
         }
         if (fileList->num == 0)
@@ -131,7 +133,7 @@ void listDir(fs::FS &fs, const char *dirname)
             fileList->filetype = filetype;
             strcpy(fileList->name, file.name());
             fileList->num = 1;
-            Serial.println("填写文件列表链表第一个数据");
+            // Serial.println("填写文件列表链表第一个数据");
         }
         else
             list_insert(fileList, filetype, file.name());
@@ -176,7 +178,7 @@ void readFile(fs::FS &fs, const char *path)
         return;
     }
 
-    Serial.print("Read from file: ");
+    // Serial.print("Read from file: ");
     while (file.available())
     {
         Serial.write(file.read());
@@ -305,52 +307,11 @@ bool sdcard_init()
 {
     if (!SD.begin(CS_PIN))
     {
-        Serial.print("sdcard init failed! \r\n");
+        // Serial.print("sdcard init failed! \r\n");
         return false;
     }
     listDir(SD, "/");
     return true;
-    /*
-    Serial.println("SD card Ready!");
-    Serial.printf("SD.cardSize = %lld \r\n", SD.cardSize());
-    Serial.printf("SD.totalBytes = %lld \r\n", SD.totalBytes());
-    Serial.printf("SD.usedBytes = %lld \r\n", SD.usedBytes());
-    Serial.printf("SD.cardType = %d \r\n", SD.cardType());
-    Serial.printf("is there /test.txt? :%d \r\n", SD.exists("/sd/doc1/test.txt"));
-    Serial.println(SD.mkdir("/doc1"));
-    Serial.printf("is there /doc1? :%d \r\n", SD.exists("/doc1"));
-    Serial.printf("is there /test.txt? :%d \r\n", SD.exists("/test.txt"));
-    File file = SD.open("/test.txt", FILE_WRITE);
-    Serial.printf("is there /test.txt? :%d \r\n", SD.exists("/test.txt"));
-    file.printf("hello!!!");
-    file.close();
-    file = SD.open("/test.txt", FILE_READ);
-    Serial.println(file.readString());
-    file.close();
-    Serial.printf("is there /doc1/test1.txt? :%d \r\n", SD.exists("/doc1/test1.txt"));
-    File file2 = SD.open("/doc1/test1.txt", FILE_WRITE);
-    Serial.printf("is there /doc1/test1.txt? :%d \r\n", SD.exists("/doc1/test1.txt"));
-    file2.printf("hello!!!");
-    file2.close();
-    file2 = SD.open("/test.txt", FILE_READ);
-    Serial.println(file2.readString());
-    file2.close();
-
-    listDir(SD, "/", 0);
-    createDir(SD, "/mydir");
-    listDir(SD, "/", 0);
-    writeFile(SD, "/hello.txt", "Hello ");
-    appendFile(SD, "/hello.txt", "World!\n");
-    readFile(SD, "/hello.txt");
-    deleteFile(SD, "/foo.txt");
-    renameFile(SD, "/hello.txt", "/foo.txt");
-    readFile(SD, "/foo.txt");
-    testFileIO(SD, "/test.txt");
-    Serial.printf("Total space: %lluMB\n", SD.totalBytes() / (1024 * 1024));
-    Serial.printf("Used space: %lluMB\n", SD.usedBytes() / (1024 * 1024));
-
-    SD.end();
-    */
 }
 
 void sdcard_end()

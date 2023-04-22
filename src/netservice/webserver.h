@@ -7,7 +7,7 @@
 #ifdef _COMPONENT_OTA
 #include <ArduinoOTA.h>
 #endif
-#ifdef _COMPONENT_SDCARD
+#ifdef _COMPONENT_SDCARD_HTTP
 #include "SD.h"
 #include "FS.h"
 #endif
@@ -16,7 +16,7 @@ void webServiceBegin();
 void setUpOverTheAirProgramming(); // OAT升级
 #endif
 
-#ifdef _COMPONENT_SDCARD
+#ifdef _COMPONENT_SDCARD_HTTP
 
 void append_page_header();
 void append_page_footer();

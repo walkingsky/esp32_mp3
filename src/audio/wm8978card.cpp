@@ -70,15 +70,6 @@ void wm8978_stop_record(bool long_record)
 bool wm8978_sdcard()
 {
     bool result = true;
-    /*
-    pinMode(CF_CS, OUTPUT);
-    digitalWrite(CF_CS, HIGH);
-    if (!SD.begin(CF_CS))
-    {
-        Serial.print("sdcard init failed! \r\n");
-        return;
-    }
-    */
 
     log_e("Connected. Starting MP3...");
     bool host = audio.connecttohost("http://192.168.1.7/2603174988.mp3");

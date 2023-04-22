@@ -26,7 +26,7 @@ bool wm8978_inited = false;
 unsigned long LastTime1;
 #endif
 #ifdef _COMPONENT_DHT11
-unsigned long LastTime2;
+// unsigned long LastTime2;
 #endif
 unsigned long LastTimeKey;
 
@@ -42,7 +42,7 @@ void setup()
   LastTime1 = 0;
 #endif
 #ifdef _COMPONENT_DHT11
-  LastTime2 = 0;
+//  LastTime2 = 0;
 #endif
   LastTimeKey = 0;
   key_value = 0;
@@ -126,10 +126,10 @@ void loop()
 #ifdef _COMPONENT_LED
   led_loop();
 #endif
-#ifdef _COMPONENT_DTH11
-  dht_loop();
+#ifdef _COMPONENT_DHT11
+//  dht_loop();
 #endif
   menu_key = key_loop();
-  mainMenu(menu_key);
-  delay(10);
+  // mainMenu(menu_key);
+  main_menu_display();
 }

@@ -69,7 +69,7 @@ void drawLogo(void)
 
 #endif
 }
-
+/*
 void drawUTF8String(uint8_t x, uint8_t y, String str, bool clear = false)
 {
     u8g2.setFont(u8g2_font_unifont_t_chinese2); // use chinese2 for all the glyphs of "你好世界"
@@ -79,7 +79,7 @@ void drawUTF8String(uint8_t x, uint8_t y, String str, bool clear = false)
     u8g2.drawUTF8(x, y, str.c_str());
     u8g2.sendBuffer();
 }
-
+*/
 void drawURL(void)
 {
 #ifndef MINI_LOGO

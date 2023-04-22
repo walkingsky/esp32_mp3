@@ -31,7 +31,7 @@ void webServiceBegin()
 {
     server.begin(80);
     server.onNotFound(handleNotFound);
-#ifdef _COMPONENT_SDCARD
+#ifdef _COMPONENT_SDCARD_HTTP
     server.on("/", HomePage);
     server.on("/download", File_Download);
     server.on("/upload", File_Upload);
@@ -51,7 +51,7 @@ void webServiceBegin()
     httpUpdater.setup(&server);
 }
 
-#ifdef _COMPONENT_SDCARD
+#ifdef _COMPONENT_SDCARD_HTTP
 
 void append_page_header()
 {
@@ -171,8 +171,8 @@ void handleFileUpload()
         String filename = uploadfile.filename;
         if (!filename.startsWith("/"))
             filename = "/" + filename;
-        Serial.print("Upload File Name: ");
-        Serial.println(filename);
+        // Serial.print("Upload File Name: ");
+        // Serial.println(filename);
         SD.remove(filename);                        // Remove a previous version, otherwise data is appended the file again
         UploadFile = SD.open(filename, FILE_WRITE); // Open the file for writing in SPIFFS (create it, if doesn't exist)
         filename = String();
@@ -187,8 +187,8 @@ void handleFileUpload()
         if (UploadFile) // If the file was successfully created
         {
             UploadFile.close(); // Close the file again
-            Serial.print("Upload Size: ");
-            Serial.println(uploadfile.totalSize);
+                                // Serial.print("Upload Size: ");
+            // Serial.println(uploadfile.totalSize);
             webpage = "";
             append_page_header();
             webpage += F("<h3>File was successfully uploaded</h3>");
