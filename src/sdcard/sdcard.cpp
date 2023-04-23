@@ -1,8 +1,5 @@
 #include "sdcard.h"
 
-struct dirList *fileList; // 目录链表
-struct dirList *selected_file;
-
 void listDir(fs::FS &fs, const char *dirname, uint8_t levels)
 {
     Serial.printf("Listing directory: %s\n", dirname);
@@ -89,21 +86,22 @@ void list_free(struct dirList *head)
 }
 
 /*列表单层目录文件*/
-void listDir(fs::FS &fs, const char *dirname)
+struct dirList *listDir(fs::FS &fs, const char *dirname)
 {
+    struct dirList *fileList = NULL;
     enum fileType filetype;
-    Serial.printf("Listing directory: %s\r\n", dirname);
+    // Serial.printf("Listing directory: %s\r\n", dirname);
 
     File root = fs.open(dirname);
     if (!root)
     {
         Serial.println("Failed to open directory");
-        return;
+        return fileList;
     }
     if (!root.isDirectory())
     {
         Serial.println("Not a directory");
-        return;
+        return fileList;
     }
     if (fileList != NULL)
         list_free(fileList);
@@ -117,8 +115,8 @@ void listDir(fs::FS &fs, const char *dirname)
             // Serial.print("  DIR : ");
             // Serial.println(file.name());
             filetype = TYPE_DIR;
-            file = root.openNextFile(); // 列表里跳过目录
-            continue;                   // 列表里跳过目录
+            // file = root.openNextFile(); // 列表里跳过目录
+            // continue;                   // 列表里跳过目录
         }
         else
         {
@@ -139,6 +137,7 @@ void listDir(fs::FS &fs, const char *dirname)
             list_insert(fileList, filetype, file.name());
         file = root.openNextFile();
     }
+    return fileList;
 }
 
 void createDir(fs::FS &fs, const char *path)
@@ -310,7 +309,7 @@ bool sdcard_init()
         // Serial.print("sdcard init failed! \r\n");
         return false;
     }
-    listDir(SD, "/");
+    // listDir(SD, "/");
     return true;
 }
 

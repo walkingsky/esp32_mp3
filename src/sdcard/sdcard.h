@@ -19,4 +19,5 @@ struct dirList
 };
 
 bool sdcard_init();
+struct dirList *listDir(fs::FS &fs, const char *dirname);
 #endif

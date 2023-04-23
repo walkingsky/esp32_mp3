@@ -112,34 +112,17 @@ const unsigned char img_longrec[] U8X8_PROGMEM = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0};
 
-class Menu
-{
-public:
-    Menu();
-    ~Menu();
-    void doMenu(int key);
-
-public:
-    bool _main_menu_first_display; // 主菜单显示时间用的变量
-
-    // 菜单级别
-    uint8_t menu_level = 0;
-    uint8_t menu_selected = 0;
-
-private:
+void mainMenu(int key);
 #ifdef _COMPONENT_SDCARD
-    void file_menu_display();
+void file_menu_display();
 #endif
-    void main_time_display();           // 主菜单（时间）
-    void main_cdcard_display();         // cd card file list
-    void main_record_display();         // 录音子菜单
-    void main_longrec_display();        // 监听录音菜单
-    void main_sdcard_content(int key);  // sd 目录列表操作页面
-    void main_record_content(int key);  // 录音操作页面
-    void main_longrec_content(int key); // 监听录音操作页面
+void main_time_display();    // 主菜单（时间）
+void main_cdcard_display();  // cd card file list
+void main_record_display();  // 录音子菜单
+void main_longrec_display(); // 监听录音菜单
 
-private:
-    uint8_t _last_second, _last_min, _last_day;
-};
+void main_sdcard_content(int key);  // sd 目录列表操作页面
+void main_record_content(int key);  // 录音操作页面
+void main_longrec_content(int key); // 监听录音操作页面
 
 #endif

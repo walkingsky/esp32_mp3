@@ -19,21 +19,14 @@ extern U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2;
 
 uint8_t vol = 12;
 
-Menu::Menu()
-{
-    menu_level = MENU_LEVEL_MAIN;
-    menu_selected = 0;
-    _main_menu_first_display = true; // 主菜单显示时间用的变量
+// 主菜单显示时间用的变量
+bool _main_menu_first_display = true;
+uint8_t _last_second, _last_min, _last_day;
+// 菜单级别
+uint8_t menu_level = 0;
+uint8_t menu_selected = 0;
 
-    menu_level = 0;
-    menu_selected = 0;
-}
-
-Menu::~Menu()
-{
-}
-
-void Menu::doMenu(int key) // 主菜单
+void mainMenu(int key) // 主菜单
 {
 
     if (menu_level == MENU_LEVEL_MAIN) // 一级菜单
@@ -96,7 +89,7 @@ void Menu::doMenu(int key) // 主菜单
     return;
 }
 
-void Menu::main_sdcard_content(int key)
+void main_sdcard_content(int key)
 {
     log_e("key:%d _main_menu_first_display:%d", key, _main_menu_first_display);
 #ifdef _COMPONENT_SDCARD
@@ -294,7 +287,7 @@ void Menu::main_sdcard_content(int key)
     }
 }
 
-void Menu::main_time_display() // 主菜单（时间）
+void main_time_display() // 主菜单（时间）
 {
     uint8_t _second, _minute, _day;
     if (_main_menu_first_display)
@@ -385,7 +378,7 @@ void Menu::main_time_display() // 主菜单（时间）
 #endif
 }
 
-void Menu::main_cdcard_display() // cd card file list
+void main_cdcard_display() // cd card file list
 {
     if (_main_menu_first_display)
     {
@@ -395,7 +388,7 @@ void Menu::main_cdcard_display() // cd card file list
         _main_menu_first_display = false;
     }
 }
-void Menu::main_record_display() // 录音子菜单
+void main_record_display() // 录音子菜单
 {
     if (_main_menu_first_display)
     {
@@ -405,7 +398,7 @@ void Menu::main_record_display() // 录音子菜单
         _main_menu_first_display = false;
     }
 }
-void Menu::main_longrec_display() // 监听录音菜单
+void main_longrec_display() // 监听录音菜单
 {
     if (_main_menu_first_display)
     {
@@ -416,15 +409,15 @@ void Menu::main_longrec_display() // 监听录音菜单
     }
 }
 
-void Menu::main_record_content(int key) // 录音操作页面
+void main_record_content(int key) // 录音操作页面
 {
 }
-void Menu::main_longrec_content(int key) // 监听录音操作页面
+void main_longrec_content(int key) // 监听录音操作页面
 {
 }
 
 #ifdef _COMPONENT_SDCARD
-void Menu::file_menu_display() // 文件列表菜单展示
+void file_menu_display() // 文件列表菜单展示
 {
     // struct dirList *p = fileList;
     struct dirList *p = selected_file;

@@ -12,10 +12,6 @@ extern WebServer server;
 #ifdef _COMPONENT_WM8978_AUDIO
 extern Audio audio;
 #endif
-#ifdef _COMPONENT_SDCARD
-extern struct dirList *fileList; // 目录链表
-extern struct dirList *selected_file;
-#endif
 
 int8_t menu_key = 0;
 #ifdef _COMPONENT_SDCARD
@@ -79,20 +75,13 @@ void setup()
 #endif
 #ifdef _COMPONENT_SDCARD
   sdcard_inited = sdcard_init();
-
-  if (sdcard_inited)
-  {
-    // wm8978_inited = wm8978_sdcard();
-    selected_file = fileList;
-  }
-  file_menu_display();
 #endif
 #ifdef _COMPONENT_WM8978
   wm8978Init();
 #endif
 #ifdef _COMPONENT_WM8978_AUDIO
   wm8978_i2s_init();
-  audio.connecttohost("http://192.168.1.7/2603174988.mp3");
+  // audio.connecttohost("http://192.168.1.7/2603174988.mp3");
 #endif
 
   // a2dp_setup();
@@ -130,6 +119,6 @@ void loop()
 //  dht_loop();
 #endif
   menu_key = key_loop();
-  // mainMenu(menu_key);
-  main_menu_display();
+  mainMenu(menu_key);
+  delay(10);
 }

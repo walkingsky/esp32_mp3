@@ -137,27 +137,27 @@ uint8_t key_loop()
     if (an_result < 10) // key1
     {
         // Serial.printf("KEY1 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = 1;
+        key_value = KEY_UP;
     }
     else if (650 <= an_result && an_result <= 750) // key2
     {
         // Serial.printf("KEY2 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = 2;
+        key_value = KEY_RIGHT;
     }
     else if (1400 <= an_result && an_result <= 1500) // key3
     {
         // Serial.printf("KEY3 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = 3;
+        key_value = KEY_LEFT;
     }
     else if (2180 <= an_result && an_result <= 2280) // key4
     {
         // Serial.printf("KEY4 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = 4;
+        key_value = KEY_DOWN;
     }
     else if (3100 <= an_result && an_result <= 3200) // key5
     {
         // Serial.printf("KEY5 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = 5;
+        key_value = KEY_OK;
     }
     else
         key_value = 0;
