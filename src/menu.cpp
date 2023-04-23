@@ -3,7 +3,7 @@
 #include "gpios.h"
 
 #ifdef _COMPONENT_SDCARD
-struct dirList *fileList; // 目录链表
+struct dirList *fileList = NULL; // 目录链表
 struct dirList *selected_file = NULL;
 #endif
 #ifdef _COMPONENT_WM8978_AUDIO
@@ -17,97 +17,157 @@ extern Audio audio;
 extern U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2;
 // extern U8G2_SSD1306_128X64_NONAME_F_2ND_HW_I2C u8g2;
 
+/*
+extern struct MenuTree *main_time;
+extern struct MenuTree *main_cdcard;
+extern struct MenuTree *main_record;
+extern struct MenuTree *main_longrec;
+extern struct MenuTree *m_cdcard;
+extern struct MenuTree *menu_p;
+*/
+struct MenuTree main_time;
+struct MenuTree main_cdcard;
+struct MenuTree main_record;
+struct MenuTree main_longrec;
+struct MenuTree m_cdcard;
+struct MenuTree *menu_p = NULL;
+
 uint8_t vol = 12;
 
-Menu::Menu()
+// 主菜单显示时间用的变量
+uint8_t _last_second, _last_min, _last_day;
+bool menu_changed = false;
+
+void doMenu(uint8_t key) // 主菜单
 {
-    menu_level = MENU_LEVEL_MAIN;
-    menu_selected = 0;
-    _main_menu_first_display = true; // 主菜单显示时间用的变量
-
-    menu_level = 0;
-    menu_selected = 0;
-}
-
-Menu::~Menu()
-{
-}
-
-void Menu::doMenu(int key) // 主菜单
-{
-
-    if (menu_level == MENU_LEVEL_MAIN) // 一级菜单
+    // if (NULL == menu_p->menu_op && key == 0)
+    if (key == 0)
     {
-        if (key == KEY_RIGHT)
+        (*menu_p->menu_disp)();
+    }
+    else if (menu_p->menu_op == NULL && key > 0)
+    {
+        switch (key)
         {
-            if (menu_selected < MENU_LEVEL_MAIN_SUB_CNT - 1)
-                menu_selected++;
-            else
-                menu_selected = 0;
-            _main_menu_first_display = true;
-        }
-        else if (key == KEY_LEFT && menu_selected != MENU_L0_TIME) // 主菜单不支持ok键
-        {
-            if (menu_selected > 0)
-                menu_selected--;
-            else
-                menu_selected = MENU_LEVEL_MAIN_SUB_CNT - 1;
-            _main_menu_first_display = true;
-        }
-        else if (key == KEY_OK)
-        {
-            menu_level = MENU_LEVEL_SBU;
-            _main_menu_first_display = true;
-        }
-        switch (menu_selected)
-        {
-        case MENU_L0_TIME:
-            main_time_display();
+        case KEY_RIGHT:
+            if (menu_p->right != NULL)
+            {
+                menu_changed = true;
+                menu_p = menu_p->right;
+            }
             break;
-        case MENU_L0_CDCARD:
-            main_cdcard_display();
+        case KEY_LEFT:
+            if (menu_p->left != NULL)
+            {
+                menu_changed = true;
+                menu_p = menu_p->left;
+            }
             break;
-        case MENU_L0_RECORD:
-            main_record_display();
+        case KEY_UP:
+            if (menu_p->parent != NULL)
+            {
+                menu_changed = true;
+                menu_p = menu_p->parent;
+            }
             break;
-        case MENU_L0_LONGREC:
-            main_longrec_display();
+        case KEY_DOWN:
+            if (menu_p->current_child != NULL)
+            {
+                menu_changed = true;
+                menu_p = menu_p->current_child;
+            }
+            break;
+        case KEY_OK:
+            if (menu_p->current_child != NULL)
+            {
+                menu_changed = true;
+                menu_p = menu_p->current_child; // 切换到下级子菜单
+            }
             break;
         }
     }
-    else if (menu_level == MENU_LEVEL_SBU) // 进入二级菜单
+    else if (menu_p->menu_op != NULL && key > 0)
     {
-        switch (menu_selected)
-        {
-        // case MENU_L0_TIME:
-        //     main_time_display();
-        //     break;
-        case MENU_L0_CDCARD:
-            main_sdcard_content(key);
-            break;
-        case MENU_L0_RECORD:
-            main_record_display();
-            break;
-        case MENU_L0_LONGREC:
-            main_longrec_display();
-            break;
-        }
+
+        (*menu_p->menu_op)(key);
     }
-    return;
 }
 
-void Menu::main_sdcard_content(int key)
+void menuInit()
 {
-    log_e("key:%d _main_menu_first_display:%d", key, _main_menu_first_display);
-#ifdef _COMPONENT_SDCARD
-    if (_main_menu_first_display)
+    /*
+    main_time = (struct MenuTree)malloc(sizeof(struct MenuTree));
+    main_cdcard = (struct MenuTree)malloc(sizeof(struct MenuTree));
+    main_record = (struct MenuTree)malloc(sizeof(struct MenuTree));
+    main_longrec = (struct MenuTree)malloc(sizeof(struct MenuTree));
+
+    m_cdcard = (struct MenuTree *)malloc(sizeof(struct MenuTree));
+    */
+
+    main_time.parent = NULL;
+    // main_time.menu_No = 1;
+    main_time.menu_disp = main_time_display;
+    main_time.left = &main_longrec;
+    main_time.right = &main_cdcard;
+    main_time.current_child = NULL;
+    main_time.menu_op = NULL;
+
+    main_cdcard.parent = NULL;
+    // main_cdcard.menu_No = 2;
+    main_cdcard.menu_disp = main_sdcard_display;
+    main_cdcard.left = &main_time;
+    main_cdcard.right = &main_record;
+    main_cdcard.current_child = &m_cdcard;
+    main_cdcard.menu_op = NULL;
+
+    main_record.parent = NULL;
+    // main_record.menu_No = 3;
+    main_record.menu_disp = main_record_display;
+    main_record.left = &main_cdcard;
+    main_record.right = &main_longrec;
+    main_record.current_child = NULL;
+    main_record.menu_op = NULL;
+
+    main_longrec.parent = NULL;
+    // main_longrec.menu_No = 4;
+    main_longrec.menu_disp = main_longrec_display;
+    main_longrec.left = &main_record;
+    main_longrec.right = &main_time;
+    main_longrec.current_child = NULL;
+    main_longrec.menu_op = NULL;
+
+    m_cdcard.parent = &main_cdcard;
+    // m_cdcard.menu_No = 5;
+    m_cdcard.menu_disp = m_sdcard_display;
+    m_cdcard.left = NULL;
+    m_cdcard.right = NULL;
+    m_cdcard.current_child = NULL;
+    m_cdcard.menu_op = m_sdcard_content;
+
+    menu_p = &main_time;
+    menu_changed = true;
+}
+
+void m_sdcard_display()
+{
+    if (menu_changed)
     {
-        fileList = listDir(SD, "/");
+        listDir(SD, "/", &fileList);
         selected_file = fileList;
-        file_menu_display();
-        _main_menu_first_display = false;
+        file_menu_display(selected_file);
+        menu_changed = false;
     }
-    else if (key > 0)
+}
+
+void m_sdcard_content(uint8_t key)
+{
+    log_e("3");
+    if (NULL == selected_file)
+        return;
+
+#ifdef _COMPONENT_SDCARD
+
+    if (key > 0)
     {
         if (key == KEY_UP) // 上键
         {
@@ -134,7 +194,7 @@ void Menu::main_sdcard_content(int key)
                 audio.connecttoFS(SD, selected_file->name);
                 Serial.printf("audio play SD file:%s\r\n", selected_file->name);
 #endif
-                file_menu_display();
+                file_menu_display(selected_file);
             }
 #endif
         }
@@ -172,7 +232,7 @@ void Menu::main_sdcard_content(int key)
                 Serial.printf("audio play SD file:%s\r\n", selected_file->name);
 #endif
 
-                file_menu_display();
+                file_menu_display(selected_file);
             }
 #endif
         }
@@ -183,121 +243,12 @@ void Menu::main_sdcard_content(int key)
     }
 
 #endif
-
-    return;
-
-    if (key == 0)
-        return;
-
-    Serial.printf("key:%d\r\n", key);
-
-    if (key == 1) // 上键
-    {
-#ifdef _COMPONENT_WM8978_AUDIO
-        if (audio.isRunning())
-            audio.stopSong();
-#endif
-#ifdef _COMPONENT_SDCARD
-        // selected_file = fileList;
-        if (selected_file->pre != NULL)
-            selected_file = selected_file->pre;
-        else
-            selected_file = fileList; // 暂时停在第一个
-        if (selected_file != NULL)
-        {
-            while (selected_file->filetype != TYPE_FILE && selected_file->pre != NULL)
-            {
-                Serial.printf("while file:%s\r\n", selected_file->name);
-                selected_file = selected_file->pre;
-            }
-            if (selected_file->filetype != TYPE_FILE) // 到最后的一个文件是目录，就跳转回第一个
-                selected_file = fileList;
-#ifdef _COMPONENT_WM8978_AUDIO
-            audio.connecttoFS(SD, selected_file->name);
-            Serial.printf("audio play SD file:%s\r\n", selected_file->name);
-#endif
-            file_menu_display();
-        }
-#endif
-    }
-
-    if (key == 2) // 右键
-    {
-        if (vol < 21)
-            vol++;
-#ifdef _COMPONENT_WM8978_AUDIO
-        audio.setVolume(vol);
-        Serial.printf("audio volume:%d\r\n", vol);
-#endif
-    }
-
-    if (key == 3) // 左键
-    {
-        if (vol > 0)
-            vol--;
-#ifdef _COMPONENT_WM8978_AUDIO
-        audio.setVolume(vol);
-        Serial.printf("audio volume:%d\r\n", vol);
-#endif
-    }
-
-    if (key == 4) // 下键
-    {
-#ifdef _COMPONENT_WM8978_AUDIO
-        if (audio.isRunning())
-            audio.stopSong();
-#endif
-#ifdef _COMPONENT_SDCARD
-        // selected_file = fileList;
-        if (selected_file->next != NULL)
-            selected_file = selected_file->next;
-        else
-            selected_file = fileList;
-        if (selected_file != NULL)
-        {
-            while (selected_file->filetype != TYPE_FILE && selected_file->next != NULL)
-            {
-                Serial.printf("while file:%s\r\n", selected_file->name);
-                selected_file = selected_file->next;
-            }
-            if (selected_file->filetype != TYPE_FILE) // 到最后的一个文件是目录，就跳转回第一个
-                selected_file = fileList;
-#ifdef _COMPONENT_WM8978_AUDIO
-            audio.connecttoFS(SD, selected_file->name);
-            Serial.printf("audio play SD file:%s\r\n", selected_file->name);
-#endif
-
-            file_menu_display();
-        }
-#endif
-    }
-
-    if (key == 5) // ok键
-    {
-#ifdef _COMPONENT_WM8978_AUDIO
-        if (1)
-        {
-            if (audio.isLRRedording())
-                wm8978_stop_record(ISLONGRECORD);
-            else if (!audio.isRedording())
-                wm8978_record(NULL, ISLONGRECORD);
-        }
-        else
-        {
-            if (audio.isRedording())
-                wm8978_stop_record(NOTLONGRECORD);
-            else if (!audio.isRedording())
-                wm8978_record((char *)"record.wav", NOTLONGRECORD);
-        }
-
-#endif
-    }
 }
 
-void Menu::main_time_display() // 主菜单（时间）
+void main_time_display() // 主菜单（时间）
 {
     uint8_t _second, _minute, _day;
-    if (_main_menu_first_display)
+    if (menu_changed)
     {
         u8g2.clear();
         u8g2.drawHLine(0, 40, 128);
@@ -324,7 +275,7 @@ void Menu::main_time_display() // 主菜单（时间）
             u8g2.printf("%5.1f%%", dht_res.humidity);
         }
 #endif
-        _main_menu_first_display = false;
+        menu_changed = false;
         _last_day = day();
         _last_min = minute();
         _last_second = second();
@@ -372,7 +323,7 @@ void Menu::main_time_display() // 主菜单（时间）
                 _day = day();
                 if (_day != _last_day)
                 {
-                    _main_menu_first_display = true;
+                    menu_changed = true; // 全部重刷
                     main_time_display();
                 }
             }
@@ -385,49 +336,49 @@ void Menu::main_time_display() // 主菜单（时间）
 #endif
 }
 
-void Menu::main_cdcard_display() // cd card file list
+void main_sdcard_display() // cd card file list
 {
-    if (_main_menu_first_display)
+    if (menu_changed)
     {
         u8g2.clear();
         u8g2.drawXBMP(2, 2, 60, 60, img_sdcard);
         u8g2.sendBuffer();
-        _main_menu_first_display = false;
+        menu_changed = false;
     }
 }
-void Menu::main_record_display() // 录音子菜单
+void main_record_display() // 录音子菜单
 {
-    if (_main_menu_first_display)
+    if (menu_changed)
     {
         u8g2.clear();
         u8g2.drawXBMP(2, 2, 60, 60, img_record);
         u8g2.sendBuffer();
-        _main_menu_first_display = false;
+        menu_changed = false;
     }
 }
-void Menu::main_longrec_display() // 监听录音菜单
+void main_longrec_display() // 监听录音菜单
 {
-    if (_main_menu_first_display)
+    if (menu_changed)
     {
         u8g2.clear();
         u8g2.drawXBMP(2, 2, 60, 60, img_longrec);
         u8g2.sendBuffer();
-        _main_menu_first_display = false;
+        menu_changed = false;
     }
 }
 
-void Menu::main_record_content(int key) // 录音操作页面
+void m_record_content(uint8_t key) // 录音操作页面
 {
 }
-void Menu::main_longrec_content(int key) // 监听录音操作页面
+void m_longrec_content(uint8_t key) // 监听录音操作页面
 {
 }
 
 #ifdef _COMPONENT_SDCARD
-void Menu::file_menu_display() // 文件列表菜单展示
+void file_menu_display(struct dirList *p) // 文件列表菜单展示
 {
     // struct dirList *p = fileList;
-    struct dirList *p = selected_file;
+    // struct dirList *p = selected_file;
     uint8_t y = 15;
     // drawUTF8String(0, 0, "", true); // 清屏
     u8g2.clear();

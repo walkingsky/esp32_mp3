@@ -16,6 +16,17 @@
 #define MENU_L0_RECORD 2
 #define MENU_L0_LONGREC 3
 
+struct MenuTree
+{
+    // uint8_t menu_No;
+    struct MenuTree *parent;
+    struct MenuTree *current_child;
+    struct MenuTree *left;
+    struct MenuTree *right;
+    void (*menu_op)(uint8_t key);
+    void (*menu_disp)(void);
+};
+
 const unsigned char img_sdcard[] U8X8_PROGMEM = {
     0x00, 0xFC, 0xFF, 0xFF, 0xFF, 0x01, 0x00, 0xF0, 0x00, 0xFE, 0xFF, 0xFF, 0xFF, 0x03, 0x00, 0xF0,
     0x00, 0x07, 0x00, 0x00, 0x80, 0x07, 0x00, 0xF0, 0x00, 0x03, 0x00, 0x00, 0x00, 0x0F, 0x00, 0xF0,
@@ -112,34 +123,19 @@ const unsigned char img_longrec[] U8X8_PROGMEM = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0};
 
-class Menu
-{
-public:
-    Menu();
-    ~Menu();
-    void doMenu(int key);
-
-public:
-    bool _main_menu_first_display; // 主菜单显示时间用的变量
-
-    // 菜单级别
-    uint8_t menu_level = 0;
-    uint8_t menu_selected = 0;
-
-private:
+void menuInit();
+void doMenu(uint8_t key); // 主菜单
 #ifdef _COMPONENT_SDCARD
-    void file_menu_display();
+void file_menu_display(struct dirList *p);
 #endif
-    void main_time_display();           // 主菜单（时间）
-    void main_cdcard_display();         // cd card file list
-    void main_record_display();         // 录音子菜单
-    void main_longrec_display();        // 监听录音菜单
-    void main_sdcard_content(int key);  // sd 目录列表操作页面
-    void main_record_content(int key);  // 录音操作页面
-    void main_longrec_content(int key); // 监听录音操作页面
+void main_time_display();    // 主菜单（时间）
+void main_sdcard_display();  // cd card file list
+void main_record_display();  // 录音子菜单
+void main_longrec_display(); // 监听录音菜单
+void m_sdcard_display();
 
-private:
-    uint8_t _last_second, _last_min, _last_day;
-};
+void m_sdcard_content(uint8_t key);  // sd 目录列表操作页面
+void m_record_content(uint8_t key);  // 录音操作页面
+void m_longrec_content(uint8_t key); // 监听录音操作页面
 
 #endif

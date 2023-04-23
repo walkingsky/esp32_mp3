@@ -86,9 +86,10 @@ void list_free(struct dirList *head)
 }
 
 /*列表单层目录文件*/
-struct dirList *listDir(fs::FS &fs, const char *dirname)
+void listDir(fs::FS &fs, const char *dirname, struct dirList **p)
 {
     struct dirList *fileList = NULL;
+
     enum fileType filetype;
     // Serial.printf("Listing directory: %s\r\n", dirname);
 
@@ -96,15 +97,17 @@ struct dirList *listDir(fs::FS &fs, const char *dirname)
     if (!root)
     {
         Serial.println("Failed to open directory");
-        return fileList;
+        return;
     }
     if (!root.isDirectory())
     {
         Serial.println("Not a directory");
-        return fileList;
+        return;
     }
     if (fileList != NULL)
+    {
         list_free(fileList);
+    }
     else
         fileList = list_init();
     File file = root.openNextFile();
@@ -137,7 +140,8 @@ struct dirList *listDir(fs::FS &fs, const char *dirname)
             list_insert(fileList, filetype, file.name());
         file = root.openNextFile();
     }
-    return fileList;
+    *p = fileList;
+    return;
 }
 
 void createDir(fs::FS &fs, const char *path)

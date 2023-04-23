@@ -32,6 +32,7 @@ uint8_t old_key_value;
 // --btaudio
 btAudio bt_audio = btAudio("ESP_Speaker");
 #endif
+
 void setup()
 {
 #ifdef _COMPONENT_LED
@@ -97,6 +98,7 @@ void setup()
 #ifdef _COMPONENT_HTTPSERVER
   webServiceBegin(); // http 服务
 #endif
+  menuInit();
 }
 
 void loop()
@@ -119,6 +121,6 @@ void loop()
 //  dht_loop();
 #endif
   menu_key = key_loop();
-  mainMenu(menu_key);
+  doMenu(menu_key);
   delay(10);
 }
