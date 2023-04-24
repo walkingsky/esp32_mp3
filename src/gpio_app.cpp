@@ -125,86 +125,81 @@ struct DHT_result dht_loop()
     return dth_result;
 }
 #endif
-uint8_t key_loop()
+uint8_t key_loop(uint8_t *old_key)
 {
     uint16_t an_result = 0;
     uint8_t key = 0;
     bool key_change = false;
-    uint32_t volt = 0;
+    // uint32_t volt = 0;
     an_result = analogRead(ADC_KEY);
-    volt = analogReadMilliVolts(ADC_KEY);
+    // volt = analogReadMilliVolts(ADC_KEY);
 
     if (an_result < 10) // key1
     {
         // Serial.printf("KEY1 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = KEY_UP;
+        key = KEY_UP;
     }
     else if (650 <= an_result && an_result <= 750) // key2
     {
         // Serial.printf("KEY2 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = KEY_RIGHT;
+        key = KEY_RIGHT;
     }
     else if (1400 <= an_result && an_result <= 1500) // key3
     {
         // Serial.printf("KEY3 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = KEY_LEFT;
+        key = KEY_LEFT;
     }
     else if (2180 <= an_result && an_result <= 2280) // key4
     {
         // Serial.printf("KEY4 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = KEY_DOWN;
+        key = KEY_DOWN;
     }
-    else if (3100 <= an_result && an_result <= 3200) // key5
+    else if (3050 <= an_result && an_result <= 3250) // key5
     {
         // Serial.printf("KEY5 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
-        key_value = KEY_OK;
+        key = KEY_OK;
     }
     else
-        key_value = 0;
+        key = 0;
 
-    // Serial.printf("..........ADC_KEY VALUE:%d\n\r", key_value);
-
-    if (old_key_value == 0 & old_key_value != key_value)
+    if (*old_key == 0 && *old_key != key)
     {
         LastTimeKey = millis(); // KEY值改变是开始计时
-        old_key_value = key_value;
+        *old_key = key;
         key_change = true;
+        // Serial.printf("开始计时\r\n");
     }
-    else if (old_key_value != key_value)
+    else if (*old_key != key)
     {
         key_change = true;
+        // Serial.printf("按键松开\r\n");
     }
 
     if (key_change && (millis() - LastTimeKey) >= PRESS_KEY_DELAY && (millis() - LastTimeKey) <= LONGPRESS_KEY_DELAY)
     {
-        Serial.printf("pressed ADC_KEY VALUE:%d\n\r", old_key_value);
-        key = old_key_value;
-        old_key_value = key_value;
-        // return key_value;
+        Serial.printf("pressed ADC_KEY VALUE:%d\n\r", *old_key);
+        key = *old_key;
+        *old_key = 0;
     }
     else if (key_change && (millis() - LastTimeKey) > LONGPRESS_KEY_DELAY)
     {
 
-        Serial.printf("long pressed ADC_KEY VALUE:%d\n\r", old_key_value + 10);
-        key = old_key_value + 10;
-        old_key_value = key_value;
-        // return key_value + 10; // 长按
+        Serial.printf("long pressed ADC_KEY VALUE:%d\n\r", *old_key + 10);
+        key = *old_key + 10;
+        *old_key = 0;
     }
-    else if (!key_change) // 有按键按下
+    else if (!key_change && (millis() - LastTimeKey) > LONGPRESS_KEY_DELAY)
     {
-        // Serial.printf("no key_change\n\r");
+        LastTimeKey = millis();
+        return *old_key + 10;
+    }
+    else if (!key_change) // 按键一直没有松开仍按原状态返回
+    {
         return 0;
     }
-    else if (key_change)
+    else if (key_change) // 小于触发时间的
     {
-        // key_value = 0;
-        //  Serial.printf("no pressed ADC_KEY VALUE:%d\n\r", key_value);
-        //  Serial.printf("key_change\n\r");
         return 0; // 没有按键
-    }
-    else
-    {
-        Serial.printf("else\n\r");
     }
     return key;
 }

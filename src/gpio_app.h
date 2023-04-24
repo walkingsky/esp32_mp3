@@ -22,6 +22,12 @@
 #define KEY_DOWN 4
 #define KEY_OK 5
 
+#define KEY_LONG_UP 11
+#define KEY_LONG_RIGHT 12
+#define KEY_LONG_LEFT 13
+#define KEY_LONG_DOWN 14
+#define KEY_LONG_OK 15
+
 #ifdef _COMPONENT_LED
 extern unsigned long LastTime1; // LED 的时间间隔
 #endif
@@ -37,8 +43,6 @@ struct DHT_result
 #endif
 extern unsigned long LastTimeKey;
 
-extern uint8_t key_value; // 按键值
-extern uint8_t old_key_value;
 #ifdef _COMPONENT_LED
 void led_init();
 void led_loop();
@@ -47,6 +51,6 @@ void led_loop();
 void dht_init();
 struct DHT_result dht_loop();
 #endif
-uint8_t key_loop();
+uint8_t key_loop(uint8_t *old_key);
 
 #endif

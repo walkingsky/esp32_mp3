@@ -161,7 +161,7 @@ void m_sdcard_display()
 
 void m_sdcard_content(uint8_t key)
 {
-    log_e("3");
+
     if (NULL == selected_file)
         return;
 
@@ -237,8 +237,17 @@ void m_sdcard_content(uint8_t key)
 #endif
         }
 
-        if (key == 5) // ok键
+        if (key == KEY_OK) // ok键
         {
+        }
+
+        if (key == KEY_LONG_UP) // 长按向上箭头返回
+        {
+            // 释放资源
+            free(fileList);
+            selected_file = NULL;
+            menu_p = menu_p->parent;
+            menu_changed = true;
         }
     }
 
@@ -341,7 +350,7 @@ void main_sdcard_display() // cd card file list
     if (menu_changed)
     {
         u8g2.clear();
-        u8g2.drawXBMP(2, 2, 60, 60, img_sdcard);
+        u8g2.drawXBMP(44, 10, 40, 40, img_sdcard);
         u8g2.sendBuffer();
         menu_changed = false;
     }
@@ -351,7 +360,7 @@ void main_record_display() // 录音子菜单
     if (menu_changed)
     {
         u8g2.clear();
-        u8g2.drawXBMP(2, 2, 60, 60, img_record);
+        u8g2.drawXBMP(44, 10, 40, 40, img_record);
         u8g2.sendBuffer();
         menu_changed = false;
     }
@@ -361,7 +370,7 @@ void main_longrec_display() // 监听录音菜单
     if (menu_changed)
     {
         u8g2.clear();
-        u8g2.drawXBMP(2, 2, 60, 60, img_longrec);
+        u8g2.drawXBMP(44, 10, 40, 40, img_longrec);
         u8g2.sendBuffer();
         menu_changed = false;
     }
