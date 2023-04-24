@@ -21,18 +21,22 @@ extern struct MenuTree *main_time;
 extern struct MenuTree *main_cdcard;
 extern struct MenuTree *main_record;
 extern struct MenuTree *main_longrec;
-extern struct MenuTree *m_cdcard;
+extern struct MenuTree *l2_cdcard;
 extern struct MenuTree *menu_p;
 */
 struct MenuTree main_time;
 struct MenuTree main_cdcard;
 struct MenuTree main_record;
 struct MenuTree main_longrec;
-struct MenuTree m_cdcard;
+struct MenuTree l2_cdcard;
+struct MenuTree l2_record;
+struct MenuTree l2_longrecord;
 struct MenuTree *menu_p = NULL;
 
 Ticker clock_timer;
 uint8_t _last_min, _last_day;
+
+uint32_t _timer_counter = 0;
 
 void doMenu(uint8_t key) // 操作菜单
 {
@@ -100,9 +104,9 @@ void menuInit()
     main_record = (struct MenuTree)malloc(sizeof(struct MenuTree));
     main_longrec = (struct MenuTree)malloc(sizeof(struct MenuTree));
 
-    m_cdcard = (struct MenuTree *)malloc(sizeof(struct MenuTree));
+    l2_cdcard = (struct MenuTree *)malloc(sizeof(struct MenuTree));
     */
-
+    // 一级菜单，显示日期时间
     main_time.parent = NULL;
     main_time.menu_No = 1;
     main_time.menu_disp = main_time_display;
@@ -110,38 +114,57 @@ void menuInit()
     main_time.right = &main_cdcard;
     main_time.current_child = NULL;
     main_time.menu_op = NULL;
-
+    // 一级菜单，显示sd卡icon，有下级菜单
     main_cdcard.parent = NULL;
     main_cdcard.menu_No = 2;
     main_cdcard.menu_disp = main_sdcard_display;
     main_cdcard.left = &main_time;
     main_cdcard.right = &main_record;
-    main_cdcard.current_child = &m_cdcard;
+    main_cdcard.current_child = &l2_cdcard;
     main_cdcard.menu_op = NULL;
-
+    // 一级菜单，录音icon ，有下级菜单
     main_record.parent = NULL;
     main_record.menu_No = 3;
     main_record.menu_disp = main_record_display;
     main_record.left = &main_cdcard;
     main_record.right = &main_longrec;
-    main_record.current_child = NULL;
+    main_record.current_child = &l2_record;
     main_record.menu_op = NULL;
-
+    // 一级菜单，监听录音icon，有下级菜单
     main_longrec.parent = NULL;
     main_longrec.menu_No = 4;
     main_longrec.menu_disp = main_longrec_display;
     main_longrec.left = &main_record;
     main_longrec.right = &main_time;
-    main_longrec.current_child = NULL;
+    main_longrec.current_child = &l2_longrecord;
     main_longrec.menu_op = NULL;
 
-    m_cdcard.parent = &main_cdcard;
-    m_cdcard.menu_No = 5;
-    m_cdcard.menu_disp = m_sdcard_display;
-    m_cdcard.left = NULL;
-    m_cdcard.right = NULL;
-    m_cdcard.current_child = NULL;
-    m_cdcard.menu_op = m_sdcard_content;
+    // 二级菜单，sd卡 音乐播放界面
+    l2_cdcard.parent = &main_cdcard;
+    l2_cdcard.menu_No = 5;
+    l2_cdcard.menu_disp = m_sdcard_display;
+    l2_cdcard.left = NULL;
+    l2_cdcard.right = NULL;
+    l2_cdcard.current_child = NULL;
+    l2_cdcard.menu_op = m_sdcard_content;
+
+    // 二级菜单，录音操作界面
+    l2_record.parent = &main_record;
+    l2_record.menu_No = 6;
+    l2_record.menu_disp = m_record_display;
+    l2_record.left = NULL;
+    l2_record.right = NULL;
+    l2_record.current_child = NULL;
+    l2_record.menu_op = m_record_content;
+
+    // 二级菜单，监听操作界面
+    l2_longrecord.parent = &main_longrec;
+    l2_longrecord.menu_No = 7;
+    l2_longrecord.menu_disp = m_longrecord_display;
+    l2_longrecord.left = NULL;
+    l2_longrecord.right = NULL;
+    l2_longrecord.current_child = NULL;
+    l2_longrecord.menu_op = m_longrecord_content;
 
     menu_p = &main_time;
 
@@ -158,8 +181,8 @@ void displayMenu()
     else
         clock_timer.detach(); // 停用计时器
 
-    if (menu_p->menu_No == 1)
-        return;
+    if ((menu_p->menu_No == 6 || menu_p->menu_No == 7) && audio.isRunning())
+        audio.stopSong();
 }
 
 void m_sdcard_display()
@@ -359,9 +382,122 @@ void main_longrec_display() // 监听录音菜单
 
 void m_record_content(uint8_t key) // 录音操作页面
 {
+    switch (key)
+    {
+    case KEY_UP:
+        wm8978_stop_record();
+        clock_timer.detach();
+        _timer_counter = 0;
+        menu_p = menu_p->parent;
+        displayMenu();
+        break;
+    case KEY_LEFT:
+        if (audio.isRedording())
+            break;
+        else
+        {
+            wm8978_record("/record.wav");
+            u8g2.setFont(u8g2_font_6x12_tf);
+            u8g2.setCursor(52, 32);
+            u8g2.print("Stop");
+            u8g2.sendBuffer();
+            _timer_counter = 0;
+            clock_timer.attach(1, record_count_timer);
+        }
+        break;
+    case KEY_RIGHT:
+        clock_timer.detach();
+        _timer_counter = 0;
+        u8g2.setDrawColor(0);
+        u8g2.drawBox(52, 20, 25, 12);
+        u8g2.setDrawColor(1);
+        u8g2.sendBuffer();
+        audio.connecttoFS(SD, "/record.wav");
+        break;
+    case KEY_OK:
+        if (audio.isRedording())
+        {
+            clock_timer.detach();
+            _timer_counter = 0;
+            wm8978_stop_record();
+            u8g2.setDrawColor(0);
+            u8g2.drawBox(52, 20, 25, 12);
+            u8g2.setDrawColor(1);
+            u8g2.sendBuffer();
+            clock_timer.detach();
+            _timer_counter = 0;
+        }
+        break;
+    }
 }
-void m_longrec_content(uint8_t key) // 监听录音操作页面
+void m_longrecord_content(uint8_t key) // 监听录音操作页面
 {
+    switch (key)
+    {
+    case KEY_UP:
+        wm8978_stop_record();
+        clock_timer.detach();
+        _timer_counter = 0;
+        menu_p = menu_p->parent;
+        displayMenu();
+        break;
+    case KEY_LEFT:
+        if (audio.isLRRedording())
+            break;
+        else
+        {
+            // audio.LongRecord();
+            wm8978_record(NULL, true);
+            _timer_counter = 0;
+            clock_timer.attach(1, record_count_timer);
+        }
+        break;
+    case KEY_RIGHT:
+        wm8978_stop_record();
+        clock_timer.detach();
+        _timer_counter = 0;
+        break;
+    }
+}
+
+void m_record_display() // 录音操作界面初始页面
+{
+    u8g2.clear();
+    u8g2.setFont(u8g2_font_6x12_tf);
+    u8g2.setCursor(60, 13);
+    u8g2.print("^");
+    u8g2.setCursor(45, 18);
+    u8g2.print("Return");
+    u8g2.setCursor(1, 32);
+    u8g2.print("<REC");
+    u8g2.setCursor(90, 32);
+    u8g2.print("Play>");
+
+    u8g2.setFont(u8g2_font_t0_22_tn); // with:10 Height:19 capital a:17
+    u8g2.setCursor(38, 60);
+    u8g2.print("00:00");
+    u8g2.sendBuffer();
+}
+
+void m_longrecord_display() // 监听录音操作界面初始页面
+{
+    u8g2.clear();
+    u8g2.setFont(u8g2_font_6x12_tf);
+    u8g2.setCursor(60, 13);
+    u8g2.print("^");
+    u8g2.setCursor(45, 18);
+    u8g2.print("Return");
+    u8g2.setCursor(1, 32);
+    u8g2.print("<REC");
+    u8g2.setCursor(60, 32);
+    u8g2.print("L");
+    u8g2.setCursor(90, 32);
+    u8g2.print("Stop>");
+
+    u8g2.setFont(u8g2_font_t0_22_tn); // with:10 Height:19 capital a:17
+    u8g2.setCursor(38, 60);
+    u8g2.print("00:00");
+    u8g2.sendBuffer();
 }
 
 #ifdef _COMPONENT_SDCARD
@@ -397,3 +533,19 @@ void file_menu_display(struct dirList *p) // 文件列表菜单展示
     u8g2.sendBuffer();
 }
 #endif
+
+void record_count_timer() // 录音时间计时器显示
+{
+    uint8_t min, sec;
+    min = _timer_counter / 60;
+    sec = (_timer_counter - min * 60);
+
+    u8g2.setFont(u8g2_font_t0_22_tn); // with:10 Height:19 capital a:17
+    u8g2.setDrawColor(0);
+    u8g2.drawBox(38, 41, 55, 20);
+    u8g2.setDrawColor(1);
+    u8g2.setCursor(38, 60);
+    u8g2.printf("%02d:%02d", min, sec);
+    u8g2.sendBuffer();
+    _timer_counter++;
+}

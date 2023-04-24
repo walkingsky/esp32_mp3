@@ -82,13 +82,15 @@ void main_time_display();    // 主菜单（时间）
 void main_sdcard_display();  // cd card file list
 void main_record_display();  // 录音子菜单
 void main_longrec_display(); // 监听录音菜单
-void m_sdcard_display();
+void m_sdcard_display();     // sd卡文件列表内容显示
+void m_record_display();     // 录音操作界面初始页面
+void m_longrecord_display(); // 监听录音操作界面初始页面
 
-void m_sdcard_content(uint8_t key);  // sd 目录列表操作页面
-void m_record_content(uint8_t key);  // 录音操作页面
-void m_longrec_content(uint8_t key); // 监听录音操作页面
+void m_sdcard_content(uint8_t key);     // sd 目录列表操作页面
+void m_record_content(uint8_t key);     // 录音操作页面
+void m_longrecord_content(uint8_t key); // 监听录音操作页面
 
 void main_time_display_clock(); // 主时间页面的时钟和温湿度数据定时更新
-void m_sdcard_display();        // sd卡文件列表内容显示
+void record_count_timer();
 
 #endif

@@ -445,7 +445,7 @@ private:
 
     void makeFileName(char *buffer)
     {
-        sprintf(buffer, "/%04d%02d%02d_%02d%02d%02d.wav", year(), month(), day(), hour(), minute(), second()); // 以年月日_时分秒的形式表示当前时间
+        sprintf(buffer, "/record/%04d%02d%02d_%02d%02d%02d.wav", year(), month(), day(), hour(), minute(), second()); // 以年月日_时分秒的形式表示当前时间
     }
 
 private:
