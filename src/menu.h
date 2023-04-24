@@ -1,6 +1,6 @@
 #ifndef __MENU_H__
 #define __MENU_H__
-
+#include <Ticker.h>
 #include "main.h"
 #include "oled/oled.h"
 #include <TimeLib.h>
@@ -18,7 +18,7 @@
 
 struct MenuTree
 {
-    // uint8_t menu_No;
+    uint8_t menu_No;
     struct MenuTree *parent;
     struct MenuTree *current_child;
     struct MenuTree *left;
@@ -73,7 +73,8 @@ const unsigned char img_longrec[] U8X8_PROGMEM = {
     0x00, 0x00, 0x00};
 
 void menuInit();
-void doMenu(uint8_t key); // 主菜单
+void doMenu(uint8_t key); // 操作菜单
+void displayMenu();       // 显示菜单
 #ifdef _COMPONENT_SDCARD
 void file_menu_display(struct dirList *p);
 #endif
@@ -86,5 +87,8 @@ void m_sdcard_display();
 void m_sdcard_content(uint8_t key);  // sd 目录列表操作页面
 void m_record_content(uint8_t key);  // 录音操作页面
 void m_longrec_content(uint8_t key); // 监听录音操作页面
+
+void main_time_display_clock(); // 主时间页面的时钟和温湿度数据定时更新
+void m_sdcard_display();        // sd卡文件列表内容显示
 
 #endif

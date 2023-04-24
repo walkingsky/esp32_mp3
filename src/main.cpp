@@ -25,8 +25,6 @@ unsigned long LastTime1;
 // unsigned long LastTime2;
 #endif
 unsigned long LastTimeKey;
-uint8_t old_key = 0;
-hw_timer_t *timer1 = NULL;
 
 #ifdef _COMPONENT_BLUETOOTH
 // --btaudio
@@ -36,7 +34,7 @@ btAudio bt_audio = btAudio("ESP_Speaker");
 void tim1Interrupt()
 {
 
-  menu_key = key_loop(&old_key);
+  // menu_key = key_loop(&old_key);
 }
 
 void setup()
@@ -101,11 +99,7 @@ void setup()
   webServiceBegin(); // http 服务
 #endif
   menuInit();
-  // 配置定时触发的定时器
-  timer1 = timerBegin(0, 80, true);
-  timerAttachInterrupt(timer1, tim1Interrupt, true);
-  timerAlarmWrite(timer1, 200000, true); // 200毫秒触发 200000微秒
-  timerAlarmEnable(timer1);
+  displayMenu();
 }
 
 void loop()
@@ -127,7 +121,7 @@ void loop()
 #ifdef _COMPONENT_DHT11
 //  dht_loop();
 #endif
-  // menu_key = key_loop(&old_key);
-  doMenu(menu_key);
-  delay(2); // 延时太短，获取adc的值不稳定，按钮长按功能不能触发
+  key_loop();
+  // doMenu(menu_key);
+  //  delay(2); // 延时太短，获取adc的值不稳定，按钮长按功能不能触发
 }

@@ -51,6 +51,6 @@ void led_loop();
 void dht_init();
 struct DHT_result dht_loop();
 #endif
-uint8_t key_loop(uint8_t *old_key);
+void key_loop();
 
 #endif

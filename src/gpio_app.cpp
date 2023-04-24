@@ -1,6 +1,9 @@
 #include "gpio_app.h"
+#include "menu.h"
 
 bool LED_status = false;
+uint8_t old_key = 0;
+
 #ifdef _COMPONENT_DHT11
 DHT_Unified dht(DHTPIN, DHTTYPE);
 #endif
@@ -41,47 +44,7 @@ void dht_init()
     // Print temperature sensor details.
     sensor_t sensor;
     dht.temperature().getSensor(&sensor);
-    /*
-    Serial.println(F("------------------------------------"));
-    Serial.println(F("Temperature Sensor"));
-    Serial.print(F("Sensor Type: "));
-    Serial.println(sensor.name);
-    Serial.print(F("Driver Ver:  "));
-    Serial.println(sensor.version);
-    Serial.print(F("Unique ID:   "));
-    Serial.println(sensor.sensor_id);
-    Serial.print(F("Max Value:   "));
-    Serial.print(sensor.max_value);
-    Serial.println(F("°C"));
-    Serial.print(F("Min Value:   "));
-    Serial.print(sensor.min_value);
-    Serial.println(F("°C"));
-    Serial.print(F("Resolution:  "));
-    Serial.print(sensor.resolution);
-    Serial.println(F("°C"));
-    Serial.println(F("------------------------------------"));
-    // Print humidity sensor details.
-    */
     dht.humidity().getSensor(&sensor);
-    /*
-    Serial.println(F("Humidity Sensor"));
-    Serial.print(F("Sensor Type: "));
-    Serial.println(sensor.name);
-    Serial.print(F("Driver Ver:  "));
-    Serial.println(sensor.version);
-    Serial.print(F("Unique ID:   "));
-    Serial.println(sensor.sensor_id);
-    Serial.print(F("Max Value:   "));
-    Serial.print(sensor.max_value);
-    Serial.println(F("%"));
-    Serial.print(F("Min Value:   "));
-    Serial.print(sensor.min_value);
-    Serial.println(F("%"));
-    Serial.print(F("Resolution:  "));
-    Serial.print(sensor.resolution);
-    Serial.println(F("%"));
-    Serial.println(F("------------------------------------"));
-    */
 }
 
 /*循环获取温湿度*/
@@ -125,81 +88,75 @@ struct DHT_result dht_loop()
     return dth_result;
 }
 #endif
-uint8_t key_loop(uint8_t *old_key)
+void key_loop()
 {
     uint16_t an_result = 0;
     uint8_t key = 0;
-    bool key_change = false;
     // uint32_t volt = 0;
     an_result = analogRead(ADC_KEY);
     // volt = analogReadMilliVolts(ADC_KEY);
 
-    if (an_result < 10) // key1
+    if (an_result < 300) // key1
     {
         // Serial.printf("KEY1 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
         key = KEY_UP;
     }
-    else if (650 <= an_result && an_result <= 750) // key2
+    else if (300 <= an_result && an_result <= 1000) // key2
     {
         // Serial.printf("KEY2 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
         key = KEY_RIGHT;
     }
-    else if (1400 <= an_result && an_result <= 1500) // key3
+    else if (1001 <= an_result && an_result <= 1900) // key3
     {
         // Serial.printf("KEY3 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
         key = KEY_LEFT;
     }
-    else if (2180 <= an_result && an_result <= 2280) // key4
+    else if (2000 <= an_result && an_result <= 2800) // key4
     {
         // Serial.printf("KEY4 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
         key = KEY_DOWN;
     }
-    else if (3050 <= an_result && an_result <= 3250) // key5
+    else if (2900 <= an_result && an_result <= 3400) // key5
     {
         // Serial.printf("KEY5 pressed ADC_KEY VALUE:%d %dmv\n\r", an_result, volt);
         key = KEY_OK;
     }
-    else
+    else if (3400 < an_result)
+    {
         key = 0;
+    }
+    else
+    {
+        Serial.printf("(%d)", an_result);
+    }
 
-    if (*old_key == 0 && *old_key != key)
+    if (old_key == 0 && old_key != key) // 按键被按下
     {
         LastTimeKey = millis(); // KEY值改变是开始计时
-        *old_key = key;
-        key_change = true;
+        old_key = key;
         // Serial.printf("开始计时\r\n");
     }
-    else if (*old_key != key)
+    else if (key == 0 && old_key != key) // 按键松开
     {
-        key_change = true;
         // Serial.printf("按键松开\r\n");
-    }
+        if ((millis() - LastTimeKey) >= PRESS_KEY_DELAY && (millis() - LastTimeKey) <= LONGPRESS_KEY_DELAY)
+        {
+            Serial.printf("pressed ADC_KEY VALUE:%d\n\r", old_key);
+            key = old_key;
+            old_key = 0;
+        }
+        else if ((millis() - LastTimeKey) > LONGPRESS_KEY_DELAY)
+        {
 
-    if (key_change && (millis() - LastTimeKey) >= PRESS_KEY_DELAY && (millis() - LastTimeKey) <= LONGPRESS_KEY_DELAY)
-    {
-        Serial.printf("pressed ADC_KEY VALUE:%d\n\r", *old_key);
-        key = *old_key;
-        *old_key = 0;
+            Serial.printf("long pressed ADC_KEY VALUE:%d\n\r", old_key + 10);
+            key = old_key + 10;
+            old_key = 0;
+        }
+        if (key > 0)
+            doMenu(key); // 执行菜单操作
     }
-    else if (key_change && (millis() - LastTimeKey) > LONGPRESS_KEY_DELAY)
+    else // 按键没变
     {
-
-        Serial.printf("long pressed ADC_KEY VALUE:%d\n\r", *old_key + 10);
-        key = *old_key + 10;
-        *old_key = 0;
+        // return 0; // 没有按键
     }
-    else if (!key_change && (millis() - LastTimeKey) > LONGPRESS_KEY_DELAY)
-    {
-        LastTimeKey = millis();
-        return *old_key + 10;
-    }
-    else if (!key_change) // 按键一直没有松开仍按原状态返回
-    {
-        return 0;
-    }
-    else if (key_change) // 小于触发时间的
-    {
-        return 0; // 没有按键
-    }
-    return key;
 }
