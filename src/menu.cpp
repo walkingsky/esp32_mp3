@@ -409,7 +409,7 @@ void m_record_content(uint8_t key) // 录音操作页面
         clock_timer.detach();
         _timer_counter = 0;
         u8g2.setDrawColor(0);
-        u8g2.drawBox(52, 20, 25, 12);
+        u8g2.drawBox(52, 20, 27, 13);
         u8g2.setDrawColor(1);
         u8g2.sendBuffer();
         audio.connecttoFS(SD, "/record.wav");
@@ -421,7 +421,7 @@ void m_record_content(uint8_t key) // 录音操作页面
             _timer_counter = 0;
             wm8978_stop_record();
             u8g2.setDrawColor(0);
-            u8g2.drawBox(52, 20, 25, 12);
+            u8g2.drawBox(52, 20, 25, 13);
             u8g2.setDrawColor(1);
             u8g2.sendBuffer();
             clock_timer.detach();
