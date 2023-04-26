@@ -1,4 +1,3 @@
-// #include <Arduino.h>
 #include "main.h"
 
 extern EepromConf eepromConf;
@@ -21,21 +20,13 @@ bool wm8978_inited = false;
 #ifdef _COMPONENT_LED
 unsigned long LastTime1;
 #endif
-#ifdef _COMPONENT_DHT11
-// unsigned long LastTime2;
-#endif
+
 unsigned long LastTimeKey;
 
 #ifdef _COMPONENT_BLUETOOTH
 // --btaudio
 btAudio bt_audio = btAudio("ESP_Speaker");
 #endif
-
-void tim1Interrupt()
-{
-
-  // menu_key = key_loop(&old_key);
-}
 
 void setup()
 {
@@ -49,7 +40,7 @@ void setup()
   Serial.printf("eepromConfig wifi ssid:%s password:%s \n\r", eepromConf.wifi_ssid, eepromConf.wifi_password);
 
   oled_init();
-  oled_loop();
+  oled_logo();
 
   connect_wifi(); // 联网处理
 #ifdef _COMPONENT_OTA
@@ -82,7 +73,6 @@ void setup()
 #endif
 #ifdef _COMPONENT_WM8978_AUDIO
   wm8978_i2s_init();
-  // audio.connecttohost("http://192.168.1.7/2603174988.mp3");
 #endif
 
   // a2dp_setup();
@@ -105,7 +95,6 @@ void setup()
 void loop()
 {
   // put your main code here, to run repeatedly:
-  // if (wm8978_inited)
 #ifdef _COMPONENT_WM8978_AUDIO
   audio.loop();
 #endif
@@ -118,10 +107,5 @@ void loop()
 #ifdef _COMPONENT_LED
   led_loop();
 #endif
-#ifdef _COMPONENT_DHT11
-//  dht_loop();
-#endif
   key_loop();
-  // doMenu(menu_key);
-  //  delay(2); // 延时太短，获取adc的值不稳定，按钮长按功能不能触发
 }

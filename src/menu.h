@@ -93,6 +93,8 @@ const unsigned char icon_temperature[] U8X8_PROGMEM = {
 const unsigned char icon_humidity[] U8X8_PROGMEM = {
     0x00, 0xE0, 0x40, 0xE0, 0xA0, 0xE0, 0x00, 0xE0, 0x10, 0xE1, 0x08, 0xE2, 0x00, 0xE0, 0xC8, 0xE7,
     0xF0, 0xE1, 0xF8, 0xE3, 0x30, 0xE1, 0x00, 0xE0}; // humidity icon
+const unsigned char icon_sound[] U8X8_PROGMEM = {
+    0xC0, 0xF0, 0xF8, 0xFF, 0xFF, 0xFF, 0xFF, 0xF8, 0xF0, 0xE0}; //
 
 void menuInit();
 void doMenu(uint8_t key); // 操作菜单
@@ -110,6 +112,7 @@ void m_record_display();     // 录音操作界面初始页面
 void m_longrecord_display(); // 监听录音操作界面初始页面
 void m_fmraido_display();    // fmraido detail display page
 
+void main_time_op(uint8_t key);
 void m_sdcard_content(uint8_t key);     // sd 目录列表操作页面
 void m_record_content(uint8_t key);     // 录音操作页面
 void m_longrecord_content(uint8_t key); // 监听录音操作页面

@@ -35,6 +35,8 @@ uint8_t _last_min, _last_day;
 uint32_t _timer_counter = 0;
 bool fmradio_firstrun = true;
 
+uint8_t vol = 12; // 音量
+
 void doMenu(uint8_t key) // 操作菜单
 {
     bool menu_changed = false;
@@ -102,7 +104,7 @@ void menuInit()
     main_time.left = &main_fmradio;
     main_time.right = &main_cdcard;
     main_time.current_child = NULL;
-    main_time.menu_op = NULL;
+    main_time.menu_op = main_time_op;
     // 一级菜单，显示sd卡icon，有下级菜单
     main_cdcard.parent = NULL;
     main_cdcard.menu_No = 2;
@@ -198,6 +200,43 @@ void m_sdcard_display()
     listDir(SD, "/", &fileList);
     selected_file = fileList;
     file_menu_display(selected_file);
+}
+
+void main_time_op(uint8_t key)
+{
+    if (key == KEY_UP)
+    {
+        if (vol < 21)
+        {
+            vol++;
+            audio.setVolume(vol);
+        }
+    }
+    else if (key == KEY_DOWN)
+    {
+        if (vol > 0)
+        {
+            vol--;
+            audio.setVolume(vol);
+        }
+    }
+    else if (key == KEY_LEFT)
+        menu_p = menu_p->left;
+    else if (key == KEY_RIGHT)
+        menu_p = menu_p->right;
+
+    if (key == KEY_DOWN || key == KEY_UP)
+    {
+        u8g2.setDrawColor(0);
+        u8g2.drawBox(121, 1, 4, 10);
+        u8g2.setDrawColor(1);
+        uint8_t h = vol * 10 / 21;
+        u8g2.drawBox(121, 11 - h, 4, h);
+        u8g2.sendBuffer();
+    }
+
+    if (key == KEY_LEFT || key == KEY_RIGHT)
+        displayMenu();
 }
 
 void m_sdcard_content(uint8_t key)
@@ -310,6 +349,9 @@ void main_time_display() // 主菜单（时间）
     u8g2.printf("%02d-%2d", month(), day());
     u8g2.drawXBMP(5, 41, 13, 14, icon_temperature);
     u8g2.drawXBMP(100, 41, 13, 14, icon_humidity);
+    u8g2.drawXBMP(110, 1, 6, 10, icon_sound);
+    uint8_t h = vol * 10 / 21;
+    u8g2.drawBox(121, 11 - h, 4, h);
 #ifdef _COMPONENT_DHT11
     // 获取温度
     struct DHT_result dht_res = dht_loop();
@@ -477,8 +519,8 @@ void m_fmraido_content(uint8_t key) // fm 收音机操作
     switch (key)
     {
     case KEY_UP:
-        if (audio.isRunning())
-            audio.stopSong();
+        // if (audio.isRunning())  //返回广播不停
+        //     audio.stopSong();
         menu_p = menu_p->parent;
         displayMenu();
         free_m3u8list();
@@ -561,9 +603,9 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
         getM3uList(&m3u8list);
         if (m3u8list)
         {
-            u8g2.setCursor(1, 48);
+            u8g2.setCursor(1, 36);
             u8g2.printf("< %s", m3u8list->name);
-            u8g2.setCursor(120, 48);
+            u8g2.setCursor(120, 36);
             u8g2.print(">");
             wm8978_playm3u(m3u8list->url);
 
@@ -571,7 +613,7 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
         }
         else
         {
-            u8g2.setCursor(18, 48);
+            u8g2.setCursor(18, 36);
             u8g2.print("No FM List fond");
         }
     }
@@ -579,14 +621,14 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
     {
         if (m3u8 == NULL)
         {
-            u8g2.setCursor(18, 48);
+            u8g2.setCursor(18, 36);
             u8g2.print("No FM List fond");
         }
         else
         {
-            u8g2.setCursor(1, 48);
+            u8g2.setCursor(1, 36);
             u8g2.printf("< %s", m3u8->name);
-            u8g2.setCursor(120, 48);
+            u8g2.setCursor(120, 36);
             u8g2.print(">");
             log_e("name:%s\turl:%s", m3u8->name, m3u8->url);
             wm8978_playm3u(m3u8->url);
