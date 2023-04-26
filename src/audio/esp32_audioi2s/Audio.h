@@ -226,6 +226,8 @@ public:
     void StopLongRecord();                              // 停止录音
     void processLongRecord();
     void LongRecord();
+    uint8_t getDBval() { return m_DB; }
+    void setDBThreshold(uint8_t threshold) { m_threshold = threshold; }
 
 private:
     void UTF8toASCII(char *str);
@@ -639,6 +641,8 @@ private:
     uint8_t m_LR_nosound_cnt = 0;    // 判断没有声音的计数
     uint8_t m_LR_havesound_cnt = 0;  // 判断有声音的计数
     bool m_LR_start = false;
+    uint8_t m_threshold = 18; // 分贝门限
+    uint8_t m_DB = 0;         // 分贝值
 };
 
 //----------------------------------------------------------------------------------------------------------------------

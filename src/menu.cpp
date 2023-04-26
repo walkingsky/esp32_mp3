@@ -4,6 +4,8 @@
 #ifdef _COMPONENT_SDCARD
 struct dirList *fileList = NULL; // 目录链表
 struct dirList *selected_file = NULL;
+struct FM_M3U8_LIST *m3u8list = NULL; // m3u8 播放列表
+struct FM_M3U8_LIST *m3u8 = NULL;
 #endif
 #ifdef _COMPONENT_WM8978_AUDIO
 extern Audio audio;
@@ -16,27 +18,22 @@ extern Audio audio;
 extern U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2;
 // extern U8G2_SSD1306_128X64_NONAME_F_2ND_HW_I2C u8g2;
 
-/*
-extern struct MenuTree *main_time;
-extern struct MenuTree *main_cdcard;
-extern struct MenuTree *main_record;
-extern struct MenuTree *main_longrec;
-extern struct MenuTree *l2_cdcard;
-extern struct MenuTree *menu_p;
-*/
 struct MenuTree main_time;
 struct MenuTree main_cdcard;
 struct MenuTree main_record;
 struct MenuTree main_longrec;
+struct MenuTree main_fmradio;
 struct MenuTree l2_cdcard;
 struct MenuTree l2_record;
 struct MenuTree l2_longrecord;
+struct MenuTree l2_fmradio;
 struct MenuTree *menu_p = NULL;
 
 Ticker clock_timer;
 uint8_t _last_min, _last_day;
 
 uint32_t _timer_counter = 0;
+bool fmradio_firstrun = true;
 
 void doMenu(uint8_t key) // 操作菜单
 {
@@ -74,7 +71,7 @@ void doMenu(uint8_t key) // 操作菜单
             if (menu_p->current_child != NULL)
             {
                 menu_changed = true;
-                menu_p = menu_p->current_child;
+                menu_p = menu_p->current_child; // some as key_ok
             }
             break;
         case KEY_OK:
@@ -98,19 +95,11 @@ void doMenu(uint8_t key) // 操作菜单
 
 void menuInit()
 {
-    /*
-    main_time = (struct MenuTree)malloc(sizeof(struct MenuTree));
-    main_cdcard = (struct MenuTree)malloc(sizeof(struct MenuTree));
-    main_record = (struct MenuTree)malloc(sizeof(struct MenuTree));
-    main_longrec = (struct MenuTree)malloc(sizeof(struct MenuTree));
-
-    l2_cdcard = (struct MenuTree *)malloc(sizeof(struct MenuTree));
-    */
     // 一级菜单，显示日期时间
     main_time.parent = NULL;
     main_time.menu_No = 1;
     main_time.menu_disp = main_time_display;
-    main_time.left = &main_longrec;
+    main_time.left = &main_fmradio;
     main_time.right = &main_cdcard;
     main_time.current_child = NULL;
     main_time.menu_op = NULL;
@@ -135,9 +124,18 @@ void menuInit()
     main_longrec.menu_No = 4;
     main_longrec.menu_disp = main_longrec_display;
     main_longrec.left = &main_record;
-    main_longrec.right = &main_time;
+    main_longrec.right = &main_fmradio;
     main_longrec.current_child = &l2_longrecord;
     main_longrec.menu_op = NULL;
+
+    // 一级菜单，网络收音机，有下级菜单
+    main_fmradio.parent = NULL;
+    main_fmradio.menu_No = 8;
+    main_fmradio.menu_disp = main_fmradio_display;
+    main_fmradio.left = &main_longrec;
+    main_fmradio.right = &main_time;
+    main_fmradio.current_child = &l2_fmradio;
+    main_fmradio.menu_op = NULL;
 
     // 二级菜单，sd卡 音乐播放界面
     l2_cdcard.parent = &main_cdcard;
@@ -165,6 +163,15 @@ void menuInit()
     l2_longrecord.right = NULL;
     l2_longrecord.current_child = NULL;
     l2_longrecord.menu_op = m_longrecord_content;
+
+    // level2 menu fm radio
+    l2_fmradio.parent = &main_fmradio;
+    l2_fmradio.menu_No = 9;
+    l2_fmradio.menu_disp = m_fmraido_display;
+    l2_fmradio.left = NULL;
+    l2_fmradio.right = NULL;
+    l2_fmradio.current_child = NULL;
+    l2_fmradio.menu_op = m_fmraido_content;
 
     menu_p = &main_time;
 
@@ -276,7 +283,7 @@ void m_sdcard_content(uint8_t key)
     if (key == KEY_LONG_UP) // 长按向上箭头返回
     {
         // 释放资源
-        free(fileList);
+        free_fileList();
         selected_file = NULL;
         menu_p = menu_p->parent;
         displayMenu();
@@ -301,6 +308,8 @@ void main_time_display() // 主菜单（时间）
 
     u8g2.setCursor(40, 62);
     u8g2.printf("%02d-%2d", month(), day());
+    u8g2.drawXBMP(5, 41, 13, 14, icon_temperature);
+    u8g2.drawXBMP(100, 41, 13, 14, icon_humidity);
 #ifdef _COMPONENT_DHT11
     // 获取温度
     struct DHT_result dht_res = dht_loop();
@@ -312,6 +321,20 @@ void main_time_display() // 主菜单（时间）
         u8g2.setCursor(92, 64);
         u8g2.printf("%5.1f%%", dht_res.humidity);
     }
+    else
+    {
+        u8g2.setFont(u8g2_font_6x12_tf); // width 6,height 12,captial A 7
+        u8g2.setCursor(1, 64);
+        u8g2.print(" -- °C");
+        u8g2.setCursor(92, 64);
+        u8g2.print(" -- %");
+    }
+#else
+    u8g2.setFont(u8g2_font_6x12_tf); // width 6,height 12,captial A 7
+    u8g2.setCursor(1, 64);
+    u8g2.print(" -- °C");
+    u8g2.setCursor(92, 64);
+    u8g2.print(" -- %%");
 #endif
     u8g2.sendBuffer();
 }
@@ -351,32 +374,22 @@ void main_time_display_clock() // 主时间页面的时钟和温湿度数据定�
             u8g2.setCursor(98, 64);
             u8g2.printf("%4.1f%%", dht_res.humidity);
         }
+        else
+        {
+            u8g2.setFont(u8g2_font_6x12_tf); // width 6,height 12,captial A 7
+            u8g2.setCursor(1, 64);
+            u8g2.print(" -- °C");
+            u8g2.setCursor(92, 64);
+            u8g2.print(" -- %");
+        }
 #endif
         _day = day();
         if (_day != _last_day)
         {
             main_time_display();
         }
+        _last_day = day();
     }
-    u8g2.sendBuffer();
-}
-
-void main_sdcard_display() // cd card file list
-{
-    u8g2.clear();
-    u8g2.drawXBMP(44, 10, 40, 40, img_sdcard);
-    u8g2.sendBuffer();
-}
-void main_record_display() // 录音子菜单
-{
-    u8g2.clear();
-    u8g2.drawXBMP(44, 10, 40, 40, img_record);
-    u8g2.sendBuffer();
-}
-void main_longrec_display() // 监听录音菜单
-{
-    u8g2.clear();
-    u8g2.drawXBMP(44, 10, 40, 40, img_longrec);
     u8g2.sendBuffer();
 }
 
@@ -396,7 +409,7 @@ void m_record_content(uint8_t key) // 录音操作页面
             break;
         else
         {
-            wm8978_record("/record.wav");
+            wm8978_record((char *)"/record.wav");
             u8g2.setFont(u8g2_font_6x12_tf);
             u8g2.setCursor(52, 32);
             u8g2.print("Stop");
@@ -459,6 +472,65 @@ void m_longrecord_content(uint8_t key) // 监听录音操作页面
         break;
     }
 }
+void m_fmraido_content(uint8_t key) // fm 收音机操作
+{
+    switch (key)
+    {
+    case KEY_UP:
+        if (audio.isRunning())
+            audio.stopSong();
+        menu_p = menu_p->parent;
+        displayMenu();
+        free_m3u8list();
+        fmradio_firstrun = true;
+        break;
+    case KEY_LEFT:
+        if (NULL != m3u8 && NULL != m3u8->pre)
+        {
+            m3u8 = m3u8->pre;
+        }
+        fmradio_firstrun = false;
+        m_fmraido_display();
+        break;
+    case KEY_RIGHT:
+        if (NULL != m3u8 && NULL != m3u8->next)
+        {
+            m3u8 = m3u8->next;
+        }
+        else
+        {
+            m3u8 = m3u8list;
+        }
+        fmradio_firstrun = false;
+        m_fmraido_display();
+        break;
+    }
+}
+
+void main_sdcard_display() // cd card file list
+{
+    u8g2.clear();
+    u8g2.drawXBMP(44, 10, 40, 40, img_sdcard);
+    u8g2.sendBuffer();
+}
+void main_record_display() // 录音子菜单
+{
+    u8g2.clear();
+    u8g2.drawXBMP(44, 10, 40, 40, img_record);
+    u8g2.sendBuffer();
+}
+void main_longrec_display() // 监听录音菜单
+{
+    u8g2.clear();
+    u8g2.drawXBMP(44, 10, 40, 40, img_longrec);
+    u8g2.sendBuffer();
+}
+void main_fmradio_display() // fm raidon image
+{
+    u8g2.clear();
+    u8g2.drawXBMP(44, 10, 40, 40, img_fmRadio);
+    u8g2.sendBuffer();
+}
 
 void m_record_display() // 录音操作界面初始页面
 {
@@ -476,6 +548,51 @@ void m_record_display() // 录音操作界面初始页面
     u8g2.setFont(u8g2_font_t0_22_tn); // with:10 Height:19 capital a:17
     u8g2.setCursor(38, 60);
     u8g2.print("00:00");
+    u8g2.sendBuffer();
+}
+
+void m_fmraido_display() // fm 收音显示页面，也就是初始化
+{
+    u8g2.clear();
+    u8g2.setFont(u8g2_font_6x12_tf);
+    if (fmradio_firstrun)
+    {
+
+        getM3uList(&m3u8list);
+        if (m3u8list)
+        {
+            u8g2.setCursor(1, 42);
+            u8g2.printf("< %s", m3u8list->name);
+            u8g2.setCursor(120, 42);
+            u8g2.print(">");
+            wm8978_playm3u(m3u8list->url);
+
+            m3u8 = m3u8list;
+        }
+        else
+        {
+            u8g2.setCursor(18, 42);
+            u8g2.print("No FM List fond");
+        }
+    }
+    else
+    {
+        if (m3u8 == NULL)
+        {
+            u8g2.setCursor(18, 42);
+            u8g2.print("No FM List fond");
+        }
+        else
+        {
+            u8g2.setCursor(1, 42);
+            u8g2.printf("< %s", m3u8->name);
+            u8g2.setCursor(120, 42);
+            u8g2.print(">");
+            log_e("name:%s\turl:%s", m3u8->name, m3u8->url);
+            wm8978_playm3u(m3u8->url);
+        }
+    }
+
     u8g2.sendBuffer();
 }
 
@@ -548,4 +665,29 @@ void record_count_timer() // 录音时间计时器显示
     u8g2.printf("%02d:%02d", min, sec);
     u8g2.sendBuffer();
     _timer_counter++;
+}
+
+void free_fileList()
+{
+    selected_file = fileList;
+    while (selected_file->next != NULL)
+    {
+        selected_file = selected_file->next;
+        free(fileList);
+        fileList = selected_file;
+    }
+    free(fileList);
+    // free(selected_file);
+}
+
+void free_m3u8list()
+{
+    m3u8 = m3u8list;
+    while (m3u8->next != NULL)
+    {
+        m3u8 = m3u8->next;
+        free(m3u8list);
+        m3u8list = m3u8;
+    }
+    // free(m3u8list);//保留一个变量不清空，后面还要循环使用
 }

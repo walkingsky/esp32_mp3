@@ -1,0 +1,9 @@
+Beijing-Traffic-Radio,http://lhttp.qtfm.cn/live/336/64k.mp3
+jiangsu Class Music,http://lhttp.qtfm.cn/live/4938/64k.mp3
+Beijing Music,http://lhttp.qtfm.cn/live/332/64k.mp3
+OUMEI Music,http://lhttp.qtfm.cn/live/15318703/64k.mp3
+Heibei Music,http://lhttp.qtfm.cn/live/1649/64k.mp3
+Shanghai Music,http://lhttp.qtfm.cn/live/273/64k.mp3
+Sichuan City,http://lhttp.qtfm.cn/live/1111/64k.mp3
+Tianjin TiKi,http://lhttp.qtfm.cn/live/20003/64k.mp3
+china business news,http://lhttp.qtfm.cn/live/276/64k.mp3

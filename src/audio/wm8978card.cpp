@@ -33,6 +33,7 @@ void wm8978_i2s_init()
     audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT, I2S_DIN);
 }
 
+// wm8978 录音
 void wm8978_record(char *path, bool long_record)
 {
     if (audio.isRunning()) // 暂停播放
@@ -52,7 +53,21 @@ void wm8978_record(char *path, bool long_record)
     else
         audio.RecordToSD(SD, path);
 }
-
+// 网络播放 m3u8 在线音乐
+void wm8978_playm3u(char *url)
+{
+    if (audio.isRunning()) // 暂停播放
+        audio.stopSong();
+    dac.cfgADDA(1, 0);
+    dac.cfgInput(0, 0, 0);
+    dac.setMICgain(0);
+    dac.setAUXgain(0);
+    dac.setLINEINgain(0);
+    dac.cfgOutput(1, 0);
+    dac.cfgI2S(2, 0);
+    audio.connecttohost(url);
+}
+// wm8978 停止录音
 void wm8978_stop_record(bool long_record)
 {
     dac.cfgADDA(0, 1);
@@ -65,25 +80,6 @@ void wm8978_stop_record(bool long_record)
         audio.StopLongRecord();
     else
         audio.StopRecord();
-}
-
-bool wm8978_sdcard()
-{
-    bool result = true;
-
-    log_e("Connected. Starting MP3...");
-    bool host = audio.connecttohost("http://192.168.1.7/2603174988.mp3");
-    // bool host = audio.connecttohost("http://icecast.omroep.nl/3fm-bb-mp3");
-    audio.setVolume(10);
-    int i = audio.getCodec();
-    log_e("host:%s code:%d", host ? "true" : "false", i);
-
-    result = audio.setPinout(I2S_BCK, I2S_WS, I2S_DOUT);
-    audio.setVolume(12); // 0...21
-
-    // audio.connecttoFS(SD, "test.mp3");
-    audio.connecttoFS(SD, "test_8bit_stereo.wav");
-    return result;
 }
 
 // optional
@@ -102,4 +98,5 @@ void audio_eof_mp3(const char *info)
     Serial.print("eof_mp3     ");
     Serial.println(info);
 }
+
 #endif

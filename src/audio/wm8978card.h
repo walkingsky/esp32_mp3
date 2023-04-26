@@ -16,12 +16,12 @@
 void wm8978Init();
 #endif
 #ifdef _COMPONENT_WM8978_AUDIO
-void wm8978_i2s_init();
 
 void wm8978_i2s_init();
 bool wm8978_sdcard();
-void wm8978_record(char *path,bool long_record = false);
+void wm8978_record(char *path, bool long_record = false);
 void wm8978_stop_record(bool long_record = false);
+void wm8978_playm3u(char *url); // 网络播放 m3u8 在线音乐
 #endif
 
 #endif

@@ -329,8 +329,8 @@ void Audio::processLongRecord() // 录音
     _data8 = (int8_t *)InBuff.getWritePtr();
     int8_t a, b;
     int16_t c;
+    /*
     uint16_t _val = 0;
-    // uint16_t threshold = (uint16_t)m_i2s_bytesRecord / (2 * 2);
     uint16_t threshold = 1800;
     for (uint16_t i = 0; i < m_i2s_bytesRecord; i += 2) // 采样。。。 2x16倍
     {
@@ -341,14 +341,24 @@ void Audio::processLongRecord() // 录音
         if (abs(c) > 60) // 音量门限
             _val++;
         _data8++;
-    }
-    // log_e("m_i2s_bytesRecord:%d\t", m_i2s_bytesRecord);
-    // log_e("_val:%d\tm_record_size:%d\tm_LR_nosound_cnt%d\tm_LR_havesound_cnt%d", _val, m_record_size, m_LR_nosound_cnt, m_LR_havesound_cnt);
-    // return;
-    //  触发录音写入文件和停止写入文件的逻辑
-    if (m_LR_start == false && _val > threshold) // 占比超过总数的1/4 触发写入
+    }*/
+    uint32_t sum = 0;
+    for (uint16_t i = 0; i < m_i2s_bytesRecord; i += 2) // 计算声音的分贝值
     {
-        if (m_LR_havesound_cnt > 4) // 开始录音的计数
+        b = *_data8;
+        _data8++;
+        a = *_data8;
+        c = a << 8 | b;
+        sum += abs(c);
+        _data8++;
+    }
+    m_DB = sum * 500.0 / 104821633; // sum * 500.0 / (6398 * 32767 / 2);
+
+    //  触发录音写入文件和停止写入文件的逻辑
+    // if (m_LR_start == false && _val > threshold) // 占比超过总数的1/4 触发写入
+    if (m_DB > m_threshold)
+    {
+        if (m_LR_havesound_cnt > 2) // 开始录音的计数
         {
             m_LR_havesound_cnt = 0;
             m_LR_start = true;
@@ -378,19 +388,19 @@ void Audio::processLongRecord() // 录音
             m_LR_havesound_cnt++;
         }
     }
-    else if (m_LR_start == false && _val < threshold)
+    else if (m_LR_start == false && m_DB < m_threshold)
     {
         m_LR_havesound_cnt = 0; // 声音中间断掉，重新计数
     }
-    else if (m_LR_start == true && _val > threshold)
+    else if (m_LR_start == true && m_DB > m_threshold)
     {
         audiofile.write((uint8_t *)InBuff.getWritePtr(), m_i2s_bytesRecord);
         m_record_size += m_i2s_bytesRecord;
         m_LR_nosound_cnt = 0; // 有声音就清零计数
     }
-    else if (m_LR_start == true && _val <= threshold)
+    else if (m_LR_start == true && m_DB <= m_threshold)
     {                                   // 静音计数
-        if (m_LR_nosound_cnt > 15 * 10) // 超过15秒//停止录音,新存文件(每次获取 6400 的数据 16*16000*2/8 的十分之一)
+        if (m_LR_nosound_cnt > 10 * 10) // 超过10秒//停止录音,新存文件(每次获取 6400 的数据 16*16000*2/8 的十分之一)
         {
             byte wav_header_fmt[44];
             audiofile.seek(0);
