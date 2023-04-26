@@ -21,7 +21,7 @@ void wm8978Init()
     dac.setSPKvol(45); /* max 63 */
     dac.setHPvol(40, 40);
     /* set i2s pins */
-    i2s_set_dac_mode(I2S_DAC_CHANNEL_DISABLE);
+    // i2s_set_dac_mode(I2S_DAC_CHANNEL_DISABLE);
 }
 #endif
 #ifdef _COMPONENT_WM8978_AUDIO
@@ -58,7 +58,7 @@ void wm8978_playm3u(char *url)
 {
     if (audio.isRunning()) // 暂停播放
         audio.stopSong();
-    dac.cfgADDA(1, 0);
+    dac.cfgADDA(0, 1);
     dac.cfgInput(0, 0, 0);
     dac.setMICgain(0);
     dac.setAUXgain(0);
@@ -81,7 +81,7 @@ void wm8978_stop_record(bool long_record)
     else
         audio.StopRecord();
 }
-
+/*
 // optional
 void audio_info(const char *info)
 {
@@ -98,5 +98,5 @@ void audio_eof_mp3(const char *info)
     Serial.print("eof_mp3     ");
     Serial.println(info);
 }
-
+*/
 #endif

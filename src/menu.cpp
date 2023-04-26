@@ -561,9 +561,9 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
         getM3uList(&m3u8list);
         if (m3u8list)
         {
-            u8g2.setCursor(1, 42);
+            u8g2.setCursor(1, 48);
             u8g2.printf("< %s", m3u8list->name);
-            u8g2.setCursor(120, 42);
+            u8g2.setCursor(120, 48);
             u8g2.print(">");
             wm8978_playm3u(m3u8list->url);
 
@@ -571,7 +571,7 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
         }
         else
         {
-            u8g2.setCursor(18, 42);
+            u8g2.setCursor(18, 48);
             u8g2.print("No FM List fond");
         }
     }
@@ -579,14 +579,14 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
     {
         if (m3u8 == NULL)
         {
-            u8g2.setCursor(18, 42);
+            u8g2.setCursor(18, 48);
             u8g2.print("No FM List fond");
         }
         else
         {
-            u8g2.setCursor(1, 42);
+            u8g2.setCursor(1, 48);
             u8g2.printf("< %s", m3u8->name);
-            u8g2.setCursor(120, 42);
+            u8g2.setCursor(120, 48);
             u8g2.print(">");
             log_e("name:%s\turl:%s", m3u8->name, m3u8->url);
             wm8978_playm3u(m3u8->url);
