@@ -30,7 +30,4 @@ void oled_logo(void)
     u8g2.drawXBMP(0, 23, 128, 18, logo);
     u8g2.sendBuffer();
     delay(1000);
-    u8g2.clear();
-    u8g2.drawXBMP(43, 18, 40, 28, wifi);
-    u8g2.sendBuffer();
 }

@@ -32,11 +32,12 @@ I2S_MCLK	MCLK		SAII_MCLKA	3		MCLK			H2_11	MCLK		rx0 D3
 #define IO2_LED GPIO_NUM_2
 
 /* DHT11 */
-#define DHTPIN GPIO_NUM_35
+#define DHTPIN GPIO_NUM_32
+// 板子有错误（IO34-39 不能用作输入），原35跳线到D32
 
 /* 按键key */
 #define ADC_KEY GPIO_NUM_34
-// 板子有错误（IO23不是adc口），跳线到D34
+// 板子有错误（IO23不是adc口），跳线到D34 //后期改到D23
 
 /*sdcard*/
 #define CF_DATA0 GPIO_NUM_2

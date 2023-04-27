@@ -553,24 +553,44 @@ void main_sdcard_display() // cd card file list
 {
     u8g2.clear();
     u8g2.drawXBMP(44, 10, 40, 40, img_sdcard);
+    u8g2.setFont(u8g2_font_6x12_tf);
+    u8g2.setCursor(5, 36);
+    u8g2.print("<");
+    u8g2.setCursor(122, 36);
+    u8g2.print(">");
     u8g2.sendBuffer();
 }
 void main_record_display() // 录音子菜单
 {
     u8g2.clear();
     u8g2.drawXBMP(44, 10, 40, 40, img_record);
+    u8g2.setFont(u8g2_font_6x12_tf);
+    u8g2.setCursor(5, 36);
+    u8g2.print("<");
+    u8g2.setCursor(122, 36);
+    u8g2.print(">");
     u8g2.sendBuffer();
 }
 void main_longrec_display() // 监听录音菜单
 {
     u8g2.clear();
     u8g2.drawXBMP(44, 10, 40, 40, img_longrec);
+    u8g2.setFont(u8g2_font_6x12_tf);
+    u8g2.setCursor(5, 36);
+    u8g2.print("<");
+    u8g2.setCursor(122, 36);
+    u8g2.print(">");
     u8g2.sendBuffer();
 }
 void main_fmradio_display() // fm raidon image
 {
     u8g2.clear();
     u8g2.drawXBMP(44, 10, 40, 40, img_fmRadio);
+    u8g2.setFont(u8g2_font_6x12_tf);
+    u8g2.setCursor(5, 36);
+    u8g2.print("<");
+    u8g2.setCursor(122, 36);
+    u8g2.print(">");
     u8g2.sendBuffer();
 }
 
@@ -603,9 +623,44 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
         getM3uList(&m3u8list);
         if (m3u8list)
         {
+            uint8_t len = strlen(m3u8list->name);
             u8g2.setCursor(1, 36);
-            u8g2.printf("< %s", m3u8list->name);
-            u8g2.setCursor(120, 36);
+            u8g2.print("<");
+            if (len <= 13)
+            {
+                u8g2.setCursor((127 - 6 * strlen(m3u8list->name)) / 2, 36);
+                u8g2.printf("%s", m3u8list->name);
+            }
+            else
+            {
+
+                char split_char[] = "-_ ";
+                if ((strpbrk(m3u8list->name, split_char)) != NULL)
+                {
+                    char *p = strpbrk(m3u8list->name, split_char);
+                    u8g2.setCursor((127 - 6 * strlen(p)) / 2, 44);
+                    u8g2.printf("%s", p);
+                    char *name = (char *)malloc(sizeof(char) * (len - strlen(p) + 1));
+                    strncpy(name, m3u8list->name, sizeof(char) * (len - strlen(p)));
+                    name[len - strlen(p)] = '\0'; // 末尾补结束符
+                    u8g2.setCursor((127 - 6 * strlen(name)) / 2, 28);
+                    u8g2.printf("%s", name);
+                    free(name);
+                }
+                else
+                {
+                    // 强行对劈
+                    char p[len + 1];
+                    char chr[len + 1];
+                    strcpy(chr, m3u8list->name);
+                    strncpy(p, m3u8list->name, len / 2);
+                    u8g2.setCursor((127 - 6 * len) / 2, 28);
+                    u8g2.printf("%s", p);
+                    u8g2.setCursor((127 - 6 * len) / 2, 44);
+                    u8g2.printf("%s", chr + len / 2);
+                }
+            }
+            u8g2.setCursor(125, 36);
             u8g2.print(">");
             wm8978_playm3u(m3u8list->url);
 
@@ -619,6 +674,7 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
     }
     else
     {
+
         if (m3u8 == NULL)
         {
             u8g2.setCursor(18, 36);
@@ -626,11 +682,46 @@ void m_fmraido_display() // fm 收音显示页面，也就是初始化
         }
         else
         {
+            uint8_t len = strlen(m3u8->name);
             u8g2.setCursor(1, 36);
-            u8g2.printf("< %s", m3u8->name);
-            u8g2.setCursor(120, 36);
+            u8g2.print("<");
+            if (len <= 13)
+            {
+                u8g2.setCursor((127 - 6 * strlen(m3u8->name)) / 2, 36);
+                u8g2.printf("%s", m3u8->name);
+            }
+            else
+            {
+
+                char split_char[] = "-_ ";
+                if ((strpbrk(m3u8->name, split_char)) != NULL)
+                {
+                    char *p = strpbrk(m3u8->name, split_char);
+                    u8g2.setCursor((127 - 6 * strlen(p)) / 2, 44);
+                    u8g2.printf("%s", p);
+                    char *name = (char *)malloc(sizeof(char) * (len - strlen(p) + 1));
+                    strncpy(name, m3u8->name, sizeof(char) * (len - strlen(p)));
+                    name[len - strlen(p)] = '\0'; // 末尾补结束符
+                    u8g2.setCursor((127 - 6 * strlen(name)) / 2, 28);
+                    u8g2.printf("%s", name);
+                    free(name);
+                }
+                else
+                {
+                    // 强行对劈
+                    char p[len + 1];
+                    char chr[len + 1];
+                    strcpy(chr, m3u8->name);
+                    strncpy(p, m3u8->name, len / 2);
+                    u8g2.setCursor((127 - 6 * len) / 2, 28);
+                    u8g2.printf("%s", p);
+                    u8g2.setCursor((127 - 6 * len) / 2, 44);
+                    u8g2.printf("%s", chr + len / 2);
+                }
+            }
+            u8g2.setCursor(125, 36);
             u8g2.print(">");
-            log_e("name:%s\turl:%s", m3u8->name, m3u8->url);
+            // log_e("name:%s\turl:%s", m3u8->name, m3u8->url);
             wm8978_playm3u(m3u8->url);
         }
     }

@@ -81,7 +81,7 @@ void wm8978_stop_record(bool long_record)
     else
         audio.StopRecord();
 }
-/*
+
 // optional
 void audio_info(const char *info)
 {
@@ -98,5 +98,5 @@ void audio_eof_mp3(const char *info)
     Serial.print("eof_mp3     ");
     Serial.println(info);
 }
-*/
+
 #endif
