@@ -4,11 +4,11 @@
 
  
 
-![obednK55kfaPAliGs18i76L3zvKPe81rLfOL9tvy.png](https:////image.lceda.cn/pullimage/obednK55kfaPAliGs18i76L3zvKPe81rLfOL9tvy.png)
+![obednK55kfaPAliGs18i76L3zvKPe81rLfOL9tvy.png](https://image.lceda.cn/pullimage/obednK55kfaPAliGs18i76L3zvKPe81rLfOL9tvy.png)
 
  
 
-![a5cmZheIWYyWWhVetuJq13s0DrljHaMVP2NepnGg.png](https:////image.lceda.cn/pullimage/a5cmZheIWYyWWhVetuJq13s0DrljHaMVP2NepnGg.png)
+![a5cmZheIWYyWWhVetuJq13s0DrljHaMVP2NepnGg.png](https://image.lceda.cn/pullimage/a5cmZheIWYyWWhVetuJq13s0DrljHaMVP2NepnGg.png)
 
  
 
@@ -35,10 +35,10 @@
 ## 软件功能
 
 - smartconfig WIFI连接配置功能，方便配置WIFI连接设置
-- 主页面显示时间、日期，实时温湿度![N3rysxgFjTM3qUuNmV4VB6RA8oY2YTDiiiHgyIG9.png](https:////image.lceda.cn/pullimage/N3rysxgFjTM3qUuNmV4VB6RA8oY2YTDiiiHgyIG9.png)
-- TF卡音频文件播放![mqbaRRw9y0wyVkQxsedOcHOBKGLSwsxhphewOSxD.png](https:////image.lceda.cn/pullimage/mqbaRRw9y0wyVkQxsedOcHOBKGLSwsxhphewOSxD.png)![kKSOptw9I8XrI4SXbkZMO9ERj3LLLvDRgc9DF3m4.png](https:////image.lceda.cn/pullimage/kKSOptw9I8XrI4SXbkZMO9ERj3LLLvDRgc9DF3m4.png)
-- 录音功能：分手动录音和自动录音，自动录音实时监听，超过程序默认的分贝值后自动开启录音，15秒无声音后自动停止录音。录音文件自动保存到TF卡record目录，使用wav格式保存![z8N0DqJHVuviU0ilv1ReXyaQrnY21o67PiNgp3cW.png](https:////image.lceda.cn/pullimage/z8N0DqJHVuviU0ilv1ReXyaQrnY21o67PiNgp3cW.png)![Co33QM5L5YzFV9AqnDlNBu6nJJgveECL5brXg94g.png](https:////image.lceda.cn/pullimage/Co33QM5L5YzFV9AqnDlNBu6nJJgveECL5brXg94g.png)
-- 网络收音机功能，读取tf中的m3u目录中的fm_m3u.txt文件中的电台列表，可按键切换![lai5Jf0WjlWxqQzIcqhi8OGrWgcrUgZ5iywYWbmq.png](https:////image.lceda.cn/pullimage/lai5Jf0WjlWxqQzIcqhi8OGrWgcrUgZ5iywYWbmq.png)![5Zr9DL2hKZQvnFfv3yHHJAMniBCHSO4J6woWCUy2.png](https:////image.lceda.cn/pullimage/5Zr9DL2hKZQvnFfv3yHHJAMniBCHSO4J6woWCUy2.png)
+- 主页面显示时间、日期，实时温湿度![N3rysxgFjTM3qUuNmV4VB6RA8oY2YTDiiiHgyIG9.png](https://image.lceda.cn/pullimage/N3rysxgFjTM3qUuNmV4VB6RA8oY2YTDiiiHgyIG9.png)
+- TF卡音频文件播放![mqbaRRw9y0wyVkQxsedOcHOBKGLSwsxhphewOSxD.png](https://image.lceda.cn/pullimage/mqbaRRw9y0wyVkQxsedOcHOBKGLSwsxhphewOSxD.png)![kKSOptw9I8XrI4SXbkZMO9ERj3LLLvDRgc9DF3m4.png](https://image.lceda.cn/pullimage/kKSOptw9I8XrI4SXbkZMO9ERj3LLLvDRgc9DF3m4.png)
+- 录音功能：分手动录音和自动录音，自动录音实时监听，超过程序默认的分贝值后自动开启录音，15秒无声音后自动停止录音。录音文件自动保存到TF卡record目录，使用wav格式保存![z8N0DqJHVuviU0ilv1ReXyaQrnY21o67PiNgp3cW.png](https://image.lceda.cn/pullimage/z8N0DqJHVuviU0ilv1ReXyaQrnY21o67PiNgp3cW.png)![Co33QM5L5YzFV9AqnDlNBu6nJJgveECL5brXg94g.png](https://image.lceda.cn/pullimage/Co33QM5L5YzFV9AqnDlNBu6nJJgveECL5brXg94g.png)
+- 网络收音机功能，读取tf中的m3u目录中的fm_m3u.txt文件中的电台列表，可按键切换![lai5Jf0WjlWxqQzIcqhi8OGrWgcrUgZ5iywYWbmq.png](https://image.lceda.cn/pullimage/lai5Jf0WjlWxqQzIcqhi8OGrWgcrUgZ5iywYWbmq.png)![5Zr9DL2hKZQvnFfv3yHHJAMniBCHSO4J6woWCUy2.png](https://image.lceda.cn/pullimage/5Zr9DL2hKZQvnFfv3yHHJAMniBCHSO4J6woWCUy2.png)
 
  
 
