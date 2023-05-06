@@ -122,5 +122,6 @@ void main_time_display_clock(); // 主时间页面的时钟和温湿度数据定
 void record_count_timer();
 void free_fileList();
 void free_m3u8list();
+void sd_music_loop(); // sd卡音乐文件自动循环播放
 
 #endif

@@ -114,7 +114,7 @@ bool smart_config()
     delay(5);
     strcpy(eepromConf.wifi_ssid, WiFi.SSID().c_str());
     strcpy(eepromConf.wifi_password, WiFi.psk().c_str());
-    Serial.printf("wifi ssid:%s password:%s \n", eepromConf.wifi_ssid, eepromConf.wifi_password);
+    // Serial.printf("wifi ssid:%s password:%s \n", eepromConf.wifi_ssid, eepromConf.wifi_password);
     writeEEpromConf();
     return true;
 }

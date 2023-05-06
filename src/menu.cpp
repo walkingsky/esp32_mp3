@@ -273,6 +273,8 @@ void m_sdcard_content(uint8_t key)
             Serial.printf("audio play SD file:%s\r\n", selected_file->name);
 #endif
             file_menu_display(selected_file);
+            // 添加自动循环播放；
+            // sd_music_loop();
         }
 #endif
     }
@@ -311,6 +313,8 @@ void m_sdcard_content(uint8_t key)
 #endif
 
             file_menu_display(selected_file);
+            // 添加自动循环播放；
+            // sd_music_loop();
         }
 #endif
     }
@@ -346,7 +350,7 @@ void main_time_display() // 主菜单（时间）
     u8g2.printf("%02d", second());
 
     u8g2.setCursor(40, 62);
-    u8g2.printf("%02d-%2d", month(), day());
+    u8g2.printf("%02d-%02d", month(), day());
     u8g2.drawXBMP(5, 41, 13, 14, icon_temperature);
     u8g2.drawXBMP(100, 41, 13, 14, icon_humidity);
     u8g2.drawXBMP(110, 1, 6, 10, icon_sound);
@@ -823,4 +827,30 @@ void free_m3u8list()
         m3u8list = m3u8;
     }
     // free(m3u8list);//保留一个变量不清空，后面还要循环使用
+}
+
+void sd_music_loop()
+{
+    while (audio.isRunning())
+    {
+        delay(1000);
+    }
+    if (selected_file->next != NULL)
+        selected_file = selected_file->next;
+    else
+        selected_file = fileList;
+    if (selected_file != NULL)
+    {
+        while (selected_file->filetype != TYPE_FILE && selected_file->next != NULL)
+        {
+            selected_file = selected_file->next;
+        }
+        if (selected_file->filetype != TYPE_FILE) // 到最后的一个文件是目录，就跳转回第一个
+            selected_file = fileList;
+
+        audio.connecttoFS(SD, selected_file->name);
+
+        if (menu_p->menu_No == 5)
+            file_menu_display(selected_file);
+    }
 }

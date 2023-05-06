@@ -1,5 +1,6 @@
 #include "ntp.h"
 
+/*
 const char ntpServerName[] = "ntp1.aliyun.com"; // NTP服务器
 const int timeZone = 8;                         // 时区，东八区为北京时间
 WiFiUDP Udp;
@@ -7,18 +8,37 @@ unsigned int localPort = 8888;      // 连接时间服务器的本地端口号
 time_t prevDisplay = 0;             // 上一次获取到的时间
 const int NTP_PACKET_SIZE = 48;     // NTP发送数据包长度
 byte packetBuffer[NTP_PACKET_SIZE]; // NTP数据包缓冲区
-
+*/
 void ntpBegin()
 {
-    Serial.println("Starting UDP"); // 连接时间服务器
-    Udp.begin(localPort);
+    // Serial.println("Starting UDP"); // 连接时间服务器
+    // Udp.begin(localPort);
     // Serial.print("Local port: ");
     // Serial.println(Udp.localPort());
-    Serial.println("waiting for sync");
-    setSyncProvider(getNtpTime);
+    // Serial.println("waiting for sync");
+    setSyncProvider(set_time);
     setSyncInterval(300);
 }
 
+time_t set_time()
+{
+    time_t td;
+    sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    sntp_setservername(0, "ntp1.aliyun.com");
+    sntp_setservername(1, "time2.cloud.tencent.com");
+    sntp_setservername(2, "cn.ntp.org.cn");
+    sntp_init();
+    // setenv("TZ", "UTC+8", 1);
+    // tzset();
+    while (time(NULL) < 1580000000) // 阻塞，直到时间同步
+        ;
+    td = time(NULL);
+    td += 8 * SECS_PER_HOUR;
+    sntp_stop();
+    return td;
+}
+
+/*
 time_t getNtpTime() // 获取NTP时间
 {
     IPAddress ntpServerIP; // NTP服务器的IP地址
@@ -66,3 +86,4 @@ void sendNTPpacket(IPAddress &address) // 发送数据包到NTP服务器
     Udp.write(packetBuffer, NTP_PACKET_SIZE); // 发送udp数据
     Udp.endPacket();                          // 发送结束
 }
+*/

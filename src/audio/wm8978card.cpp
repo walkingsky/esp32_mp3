@@ -65,7 +65,8 @@ void wm8978_playm3u(char *url)
     dac.setLINEINgain(0);
     dac.cfgOutput(1, 0);
     dac.cfgI2S(2, 0);
-    audio.connecttohost(url);
+    while (audio.connecttohost(url) == false)
+        delay(2000); // 失败后 2秒后继续重试
 }
 // wm8978 停止录音
 void wm8978_stop_record(bool long_record)

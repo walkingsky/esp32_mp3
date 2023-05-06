@@ -1,10 +1,7 @@
 #include "main.h"
 
 extern EepromConf eepromConf;
-#ifdef _COMPONENT_NTP
-extern WiFiUDP Udp;
-#endif
-extern int localPort;
+
 #ifdef _COMPONENT_HTTPSERVER
 extern WebServer server;
 #endif
@@ -12,11 +9,6 @@ extern WebServer server;
 extern Audio audio;
 #endif
 
-int8_t menu_key = 0;
-#ifdef _COMPONENT_SDCARD
-bool sdcard_inited = false;
-#endif
-bool wm8978_inited = false;
 #ifdef _COMPONENT_LED
 unsigned long LastTime1;
 #endif
@@ -48,14 +40,6 @@ void setup()
 #endif
 #ifdef _COMPONENT_NTP
   ntpBegin();
-  // 连接时间服务器
-  Serial.println("Starting UDP"); // 连接时间服务器
-  Udp.begin(localPort);
-  // Serial.print("Local port: ");
-  // Serial.println(Udp.localPort());
-  Serial.println("waiting for sync");
-  setSyncProvider(getNtpTime);
-  setSyncInterval(300);
 #endif
   pinMode(ADC_KEY, ANALOG);
 
@@ -66,7 +50,7 @@ void setup()
   dht_init();
 #endif
 #ifdef _COMPONENT_SDCARD
-  sdcard_inited = sdcard_init();
+  sdcard_init();
 #endif
 #ifdef _COMPONENT_WM8978
   wm8978Init();
